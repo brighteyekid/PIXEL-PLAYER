@@ -710,7 +710,7 @@
 </div>
 
 <div id="toast"></div>
-<input type="file" id="file-input" accept="audio/*" multiple>
+<input type="file" id="file-input" accept=".mp3,.m4a,.aac,.wav,.ogg,.flac,.mp4,audio/mpeg,audio/mp4,audio/x-m4a,audio/wav,audio/ogg,audio/flac" multiple>
 
 <audio id="audio-el" preload="metadata"></audio>
 
@@ -1009,8 +1009,11 @@ document.getElementById('btn-repeat').addEventListener('click', function() {
 // ──────────────────────────────────────────────
 // FILE UPLOAD
 // ──────────────────────────────────────────────
-document.getElementById('btn-add').addEventListener('click', () => {
-  document.getElementById('file-input').click();
+document.getElementById('btn-add').addEventListener('click', (e) => {
+  e.preventDefault();
+  const fi = document.getElementById('file-input');
+  fi.value = '';
+  fi.click();
 });
 
 document.getElementById('file-input').addEventListener('change', function(e) {
