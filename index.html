@@ -1,0 +1,1179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>PIXELPLAY</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsmediatags/3.9.5/jsmediatags.min.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --off-white: #F5F0E8;
+    --cream: #EDE8DC;
+    --dusty-rose: #D4A5A0;
+    --slate-blue: #7A8FA6;
+    --sage: #8FAF8A;
+    --charcoal: #2E2E2E;
+    --warm-gray: #B0A898;
+    --ink: #1A1A1A;
+  }
+
+  html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: var(--cream);
+    color: var(--ink);
+    image-rendering: pixelated;
+  }
+
+  body {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    background-color: var(--warm-gray);
+    background-image:
+      radial-gradient(circle, var(--charcoal) 1px, transparent 1px);
+    background-size: 8px 8px;
+  }
+
+  #app {
+    width: 390px;
+    height: 100dvh;
+    max-height: 100dvh;
+    background-color: var(--off-white);
+    background-image:
+      radial-gradient(circle, rgba(46,46,46,0.08) 1px, transparent 1px);
+    background-size: 6px 6px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border-left: 2px solid var(--ink);
+    border-right: 2px solid var(--ink);
+    position: relative;
+  }
+
+  /* ── PANEL 1: HEADER ── */
+  #header {
+    height: 48px;
+    min-height: 48px;
+    background: var(--cream);
+    border-bottom: 2px solid var(--ink);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 12px;
+  }
+
+  #app-name {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 8px;
+    color: var(--ink);
+    letter-spacing: 1px;
+  }
+
+  /* ── PANEL 2: ALBUM ART ── */
+  #art-panel {
+    min-height: 220px;
+    height: 220px;
+    background: var(--off-white);
+    border-bottom: 2px solid var(--ink);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 12px 8px;
+    gap: 8px;
+  }
+
+  #art-frame {
+    width: 140px;
+    height: 140px;
+    border: 3px solid var(--ink);
+    box-shadow: 4px 4px 0 var(--charcoal);
+    overflow: hidden;
+    flex-shrink: 0;
+    background: var(--cream);
+    image-rendering: pixelated;
+  }
+
+  #art-frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    image-rendering: pixelated;
+    display: block;
+  }
+
+  #art-frame svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  #track-info {
+    text-align: center;
+    width: 100%;
+    padding: 0 8px;
+  }
+
+  #track-title {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 8px;
+    color: var(--ink);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.6;
+    max-width: 340px;
+    margin: 0 auto;
+  }
+
+  #track-artist {
+    font-family: 'VT323', monospace;
+    font-size: 18px;
+    color: var(--slate-blue);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 340px;
+    margin: 0 auto;
+    display: block;
+  }
+
+  /* ── PANEL 3: VISUALIZER ── */
+  #visualizer-panel {
+    height: 80px;
+    min-height: 80px;
+    background: var(--cream);
+    border-bottom: 2px solid var(--ink);
+    border-left: 2px solid var(--ink);
+    border-right: 2px solid var(--ink);
+    margin: 0 -2px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  #freq-label {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 6px;
+    color: var(--ink);
+    position: absolute;
+    top: 4px;
+    left: 6px;
+    z-index: 2;
+    letter-spacing: 1px;
+  }
+
+  #visualizer {
+    width: 100%;
+    height: 100%;
+    display: block;
+    image-rendering: pixelated;
+  }
+
+  /* ── PANEL 4: CONTROLS ── */
+  #controls-panel {
+    background: var(--off-white);
+    border-bottom: 2px solid var(--ink);
+    padding: 8px 12px 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  /* Seekbar */
+  #seek-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 4px;
+    background: var(--warm-gray);
+    border: 2px solid var(--ink);
+    border-radius: 0;
+    outline: none;
+    cursor: pointer;
+  }
+
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 12px;
+    height: 12px;
+    background: var(--ink);
+    border-radius: 0;
+    cursor: pointer;
+    border: none;
+  }
+
+  input[type="range"]::-moz-range-thumb {
+    width: 12px;
+    height: 12px;
+    background: var(--ink);
+    border-radius: 0;
+    cursor: pointer;
+    border: none;
+  }
+
+  #time-row {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .time-display {
+    font-family: 'VT323', monospace;
+    font-size: 16px;
+    color: var(--charcoal);
+  }
+
+  /* Transport controls */
+  #transport {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  .ctrl-btn {
+    width: 52px;
+    height: 52px;
+    background: var(--off-white);
+    border: 2px solid var(--ink);
+    box-shadow: 3px 3px 0 var(--ink);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: none;
+    flex-shrink: 0;
+    image-rendering: pixelated;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+
+  .ctrl-btn:active, .ctrl-btn.pressed {
+    box-shadow: 1px 1px 0 var(--ink);
+    transform: translate(2px, 2px);
+  }
+
+  #btn-play {
+    width: 60px;
+    height: 60px;
+  }
+
+  /* Volume row */
+  #volume-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  #volume-row input[type="range"] {
+    flex: 1;
+  }
+
+  /* Mode toggles */
+  #mode-row {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+  }
+
+  .mode-btn {
+    width: 36px;
+    height: 36px;
+    background: var(--off-white);
+    border: 2px solid var(--ink);
+    box-shadow: 3px 3px 0 var(--ink);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 5px;
+    color: var(--ink);
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    transition: none;
+  }
+
+  .mode-btn:active {
+    box-shadow: 1px 1px 0 var(--ink);
+    transform: translate(2px, 2px);
+  }
+
+  .mode-btn.active {
+    background: var(--ink);
+    color: var(--off-white);
+  }
+
+  /* ── PANEL 5: PLAYLIST ── */
+  #playlist-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-height: 0;
+  }
+
+  #playlist-header {
+    height: 36px;
+    min-height: 36px;
+    background: var(--cream);
+    border-bottom: 2px solid var(--ink);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 10px;
+  }
+
+  #queue-label {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 7px;
+    color: var(--ink);
+  }
+
+  #btn-add {
+    width: 60px;
+    height: 24px;
+    background: var(--off-white);
+    border: 2px solid var(--ink);
+    box-shadow: 2px 2px 0 var(--ink);
+    font-family: 'Press Start 2P', monospace;
+    font-size: 6px;
+    color: var(--ink);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+
+  #btn-add:active {
+    box-shadow: 1px 1px 0 var(--ink);
+    transform: translate(1px, 1px);
+  }
+
+  #playlist-scroll {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    min-height: 0;
+    scrollbar-width: thin;
+    scrollbar-color: var(--slate-blue) var(--cream);
+  }
+
+  #playlist-scroll::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  #playlist-scroll::-webkit-scrollbar-track {
+    background: var(--cream);
+  }
+
+  #playlist-scroll::-webkit-scrollbar-thumb {
+    background: var(--slate-blue);
+    border-radius: 0;
+  }
+
+  .track-row {
+    height: 52px;
+    border-bottom: 1px solid var(--warm-gray);
+    display: flex;
+    align-items: center;
+    padding: 0 8px;
+    gap: 8px;
+    cursor: pointer;
+    position: relative;
+    background: var(--off-white);
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+
+  .track-row:active {
+    background: var(--cream);
+  }
+
+  .track-row.active {
+    background: var(--dusty-rose);
+  }
+
+  .track-row.active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 4px;
+    background: var(--ink);
+  }
+
+  .track-thumb {
+    width: 36px;
+    height: 36px;
+    border: 1px solid var(--ink);
+    flex-shrink: 0;
+    overflow: hidden;
+    image-rendering: pixelated;
+    background: var(--cream);
+  }
+
+  .track-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    image-rendering: pixelated;
+    display: block;
+  }
+
+  .track-thumb svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  .track-meta {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .track-name {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 6px;
+    color: var(--ink);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .track-artist-small {
+    font-family: 'VT323', monospace;
+    font-size: 14px;
+    color: var(--slate-blue);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .track-dur {
+    font-family: 'VT323', monospace;
+    font-size: 14px;
+    color: var(--charcoal);
+    flex-shrink: 0;
+  }
+
+  #empty-msg {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 7px;
+    color: var(--warm-gray);
+    text-align: center;
+    padding: 24px 16px;
+    line-height: 2;
+  }
+
+  /* Toast */
+  #toast {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 390px;
+    background: var(--charcoal);
+    color: var(--off-white);
+    font-family: 'VT323', monospace;
+    font-size: 14px;
+    padding: 8px 12px;
+    border-radius: 0;
+    display: none;
+    z-index: 100;
+    text-align: center;
+  }
+
+  #file-input {
+    display: none;
+  }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- PANEL 1: HEADER -->
+  <div id="header">
+    <span id="app-name">PIXELPLAY</span>
+    <!-- Cassette SVG icon -->
+    <svg width="32" height="20" viewBox="0 0 32 20" xmlns="http://www.w3.org/2000/svg" image-rendering="pixelated">
+      <!-- Housing outline -->
+      <rect x="0" y="0" width="32" height="20" fill="#EDE8DC"/>
+      <rect x="0" y="0" width="32" height="2" fill="#1A1A1A"/>
+      <rect x="0" y="18" width="32" height="2" fill="#1A1A1A"/>
+      <rect x="0" y="0" width="2" height="20" fill="#1A1A1A"/>
+      <rect x="30" y="0" width="2" height="20" fill="#1A1A1A"/>
+      <!-- Left reel (3x3 cluster center) -->
+      <rect x="5" y="5" width="3" height="1" fill="#1A1A1A"/>
+      <rect x="4" y="6" width="5" height="1" fill="#1A1A1A"/>
+      <rect x="4" y="7" width="5" height="1" fill="#1A1A1A"/>
+      <rect x="4" y="8" width="5" height="1" fill="#1A1A1A"/>
+      <rect x="5" y="9" width="3" height="1" fill="#1A1A1A"/>
+      <!-- Right reel -->
+      <rect x="24" y="5" width="3" height="1" fill="#1A1A1A"/>
+      <rect x="23" y="6" width="5" height="1" fill="#1A1A1A"/>
+      <rect x="23" y="7" width="5" height="1" fill="#1A1A1A"/>
+      <rect x="23" y="8" width="5" height="1" fill="#1A1A1A"/>
+      <rect x="24" y="9" width="3" height="1" fill="#1A1A1A"/>
+      <!-- Tape window -->
+      <rect x="11" y="8" width="10" height="4" fill="#B0A898"/>
+      <rect x="11" y="8" width="10" height="1" fill="#1A1A1A"/>
+      <rect x="11" y="11" width="10" height="1" fill="#1A1A1A"/>
+      <rect x="11" y="8" width="1" height="4" fill="#1A1A1A"/>
+      <rect x="20" y="8" width="1" height="4" fill="#1A1A1A"/>
+      <!-- Connecting bar -->
+      <rect x="9" y="7" width="2" height="1" fill="#2E2E2E"/>
+      <rect x="21" y="7" width="2" height="1" fill="#2E2E2E"/>
+      <!-- Bottom cutouts -->
+      <rect x="6" y="14" width="4" height="4" fill="#B0A898"/>
+      <rect x="22" y="14" width="4" height="4" fill="#B0A898"/>
+    </svg>
+  </div>
+
+  <!-- PANEL 2: ALBUM ART -->
+  <div id="art-panel">
+    <div id="art-frame">
+      <!-- Default pixel placeholder (vinyl record) -->
+      <svg id="default-art" viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg" image-rendering="pixelated">
+        <rect width="140" height="140" fill="#EDE8DC"/>
+        <!-- Record outer ring -->
+        <rect x="20" y="10" width="100" height="8" fill="#2E2E2E"/>
+        <rect x="10" y="20" width="8" height="100" fill="#2E2E2E"/>
+        <rect x="20" y="122" width="100" height="8" fill="#2E2E2E"/>
+        <rect x="122" y="20" width="8" height="100" fill="#2E2E2E"/>
+        <rect x="10" y="10" width="10" height="10" fill="#2E2E2E"/>
+        <rect x="120" y="10" width="10" height="10" fill="#2E2E2E"/>
+        <rect x="10" y="120" width="10" height="10" fill="#2E2E2E"/>
+        <rect x="120" y="120" width="10" height="10" fill="#2E2E2E"/>
+        <!-- Inner fill -->
+        <rect x="18" y="18" width="104" height="104" fill="#1A1A1A"/>
+        <!-- Grooves ring 1 -->
+        <rect x="30" y="26" width="80" height="4" fill="#2E2E2E"/>
+        <rect x="26" y="30" width="4" height="80" fill="#2E2E2E"/>
+        <rect x="30" y="110" width="80" height="4" fill="#2E2E2E"/>
+        <rect x="110" y="30" width="4" height="80" fill="#2E2E2E"/>
+        <!-- Grooves ring 2 -->
+        <rect x="40" y="36" width="60" height="3" fill="#2E2E2E"/>
+        <rect x="36" y="40" width="3" height="60" fill="#2E2E2E"/>
+        <rect x="40" y="101" width="60" height="3" fill="#2E2E2E"/>
+        <rect x="101" y="40" width="3" height="60" fill="#2E2E2E"/>
+        <!-- Label area -->
+        <rect x="50" y="50" width="40" height="40" fill="#D4A5A0"/>
+        <rect x="52" y="52" width="36" height="36" fill="#D4A5A0"/>
+        <!-- Center hole -->
+        <rect x="66" y="64" width="8" height="2" fill="#EDE8DC"/>
+        <rect x="64" y="66" width="12" height="8" fill="#EDE8DC"/>
+        <rect x="66" y="74" width="8" height="2" fill="#EDE8DC"/>
+        <!-- Label text blocks -->
+        <rect x="56" y="58" width="28" height="2" fill="#1A1A1A"/>
+        <rect x="58" y="62" width="24" height="2" fill="#1A1A1A"/>
+        <rect x="60" y="78" width="20" height="2" fill="#7A8FA6"/>
+        <rect x="58" y="82" width="24" height="2" fill="#7A8FA6"/>
+      </svg>
+    </div>
+    <div id="track-info">
+      <div id="track-title">NO TRACK LOADED</div>
+      <span id="track-artist">Unknown Artist</span>
+    </div>
+  </div>
+
+  <!-- PANEL 3: VISUALIZER -->
+  <div id="visualizer-panel">
+    <span id="freq-label">FREQ</span>
+    <canvas id="visualizer"></canvas>
+  </div>
+
+  <!-- PANEL 4: CONTROLS -->
+  <div id="controls-panel">
+    <div id="seek-container">
+      <input type="range" id="seek-bar" min="0" max="100" value="0" step="0.1">
+      <div id="time-row">
+        <span class="time-display" id="time-current">0:00</span>
+        <span class="time-display" id="time-total">0:00</span>
+      </div>
+    </div>
+
+    <div id="transport">
+      <!-- PREV button -->
+      <button class="ctrl-btn" id="btn-prev" aria-label="Previous">
+        <svg width="24" height="24" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" image-rendering="pixelated">
+          <!-- vertical bar -->
+          <rect x="1" y="2" width="2" height="12" fill="#1A1A1A"/>
+          <!-- triangle 1 (left arrow staircase) -->
+          <rect x="3" y="7" width="1" height="2" fill="#1A1A1A"/>
+          <rect x="4" y="6" width="1" height="4" fill="#1A1A1A"/>
+          <rect x="5" y="5" width="1" height="6" fill="#1A1A1A"/>
+          <rect x="6" y="4" width="1" height="8" fill="#1A1A1A"/>
+          <rect x="7" y="3" width="1" height="10" fill="#1A1A1A"/>
+          <!-- triangle 2 -->
+          <rect x="9" y="7" width="1" height="2" fill="#1A1A1A"/>
+          <rect x="10" y="6" width="1" height="4" fill="#1A1A1A"/>
+          <rect x="11" y="5" width="1" height="6" fill="#1A1A1A"/>
+          <rect x="12" y="4" width="1" height="8" fill="#1A1A1A"/>
+          <rect x="13" y="3" width="1" height="10" fill="#1A1A1A"/>
+        </svg>
+      </button>
+
+      <!-- PLAY/PAUSE button -->
+      <button class="ctrl-btn" id="btn-play" aria-label="Play/Pause">
+        <svg id="play-icon" width="28" height="28" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" image-rendering="pixelated">
+          <rect x="3" y="2" width="1" height="12" fill="#1A1A1A"/>
+          <rect x="4" y="3" width="1" height="10" fill="#1A1A1A"/>
+          <rect x="5" y="4" width="1" height="8" fill="#1A1A1A"/>
+          <rect x="6" y="5" width="1" height="6" fill="#1A1A1A"/>
+          <rect x="7" y="6" width="1" height="4" fill="#1A1A1A"/>
+          <rect x="8" y="7" width="1" height="2" fill="#1A1A1A"/>
+        </svg>
+        <svg id="pause-icon" width="28" height="28" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" image-rendering="pixelated" style="display:none">
+          <rect x="3" y="2" width="4" height="12" fill="#1A1A1A"/>
+          <rect x="9" y="2" width="4" height="12" fill="#1A1A1A"/>
+        </svg>
+      </button>
+
+      <!-- NEXT button -->
+      <button class="ctrl-btn" id="btn-next" aria-label="Next">
+        <svg width="24" height="24" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" image-rendering="pixelated">
+          <!-- triangle 1 (right arrow) -->
+          <rect x="2" y="3" width="1" height="10" fill="#1A1A1A"/>
+          <rect x="3" y="4" width="1" height="8" fill="#1A1A1A"/>
+          <rect x="4" y="5" width="1" height="6" fill="#1A1A1A"/>
+          <rect x="5" y="6" width="1" height="4" fill="#1A1A1A"/>
+          <rect x="6" y="7" width="1" height="2" fill="#1A1A1A"/>
+          <!-- triangle 2 -->
+          <rect x="8" y="3" width="1" height="10" fill="#1A1A1A"/>
+          <rect x="9" y="4" width="1" height="8" fill="#1A1A1A"/>
+          <rect x="10" y="5" width="1" height="6" fill="#1A1A1A"/>
+          <rect x="11" y="6" width="1" height="4" fill="#1A1A1A"/>
+          <rect x="12" y="7" width="1" height="2" fill="#1A1A1A"/>
+          <!-- vertical bar -->
+          <rect x="13" y="2" width="2" height="12" fill="#1A1A1A"/>
+        </svg>
+      </button>
+    </div>
+
+    <div id="volume-row">
+      <!-- Speaker SVG -->
+      <svg width="20" height="16" viewBox="0 0 20 16" xmlns="http://www.w3.org/2000/svg" image-rendering="pixelated">
+        <!-- Speaker box -->
+        <rect x="1" y="5" width="5" height="6" fill="#1A1A1A"/>
+        <!-- Cone staircase -->
+        <rect x="6" y="4" width="1" height="8" fill="#1A1A1A"/>
+        <rect x="7" y="3" width="1" height="10" fill="#1A1A1A"/>
+        <rect x="8" y="2" width="1" height="12" fill="#1A1A1A"/>
+        <!-- Sound waves -->
+        <rect x="11" y="5" width="1" height="6" fill="#2E2E2E"/>
+        <rect x="13" y="4" width="1" height="8" fill="#2E2E2E"/>
+        <rect x="15" y="3" width="1" height="10" fill="#B0A898"/>
+      </svg>
+      <input type="range" id="volume-bar" min="0" max="1" value="0.8" step="0.01">
+    </div>
+
+    <div id="mode-row">
+      <button class="mode-btn" id="btn-shuffle">SHUF</button>
+      <button class="mode-btn" id="btn-repeat">REPT</button>
+    </div>
+  </div>
+
+  <!-- PANEL 5: PLAYLIST -->
+  <div id="playlist-panel">
+    <div id="playlist-header">
+      <span id="queue-label">QUEUE</span>
+      <button id="btn-add">+ ADD</button>
+    </div>
+    <div id="playlist-scroll">
+      <div id="playlist-list"></div>
+    </div>
+  </div>
+
+</div>
+
+<div id="toast"></div>
+<input type="file" id="file-input" accept="audio/*" multiple>
+
+<audio id="audio-el" preload="metadata"></audio>
+
+<script>
+// ──────────────────────────────────────────────
+// STATE
+// ──────────────────────────────────────────────
+let playlist = [];
+let currentIndex = -1;
+let isPlaying = false;
+let shuffle = false;
+let repeat = false;
+let audioCtx = null;
+let analyser = null;
+let gainNode = null;
+let sourceNode = null;
+let animFrameId = null;
+let isSeeking = false;
+let audioCtxResumed = false;
+
+const audio = document.getElementById('audio-el');
+const canvas = document.getElementById('visualizer');
+const ctx2d = canvas.getContext('2d');
+
+// ──────────────────────────────────────────────
+// INDEXEDDB
+// ──────────────────────────────────────────────
+let db;
+const DB_NAME = 'pixelplay_db';
+const STORE = 'tracks';
+
+function openDB() {
+  return new Promise((res, rej) => {
+    const req = indexedDB.open(DB_NAME, 1);
+    req.onupgradeneeded = e => {
+      const d = e.target.result;
+      if (!d.objectStoreNames.contains(STORE)) {
+        d.createObjectStore(STORE, { autoIncrement: true });
+      }
+    };
+    req.onsuccess = e => { db = e.target.result; res(db); };
+    req.onerror = e => rej(e);
+  });
+}
+
+function dbPut(track) {
+  return new Promise((res, rej) => {
+    const tx = db.transaction(STORE, 'readwrite');
+    const store = tx.objectStore(STORE);
+    const req = store.add(track);
+    req.onsuccess = e => res(e.target.result);
+    req.onerror = e => rej(e);
+  });
+}
+
+function dbGetAll() {
+  return new Promise((res, rej) => {
+    const tx = db.transaction(STORE, 'readonly');
+    const store = tx.objectStore(STORE);
+    const items = [];
+    const req = store.openCursor();
+    req.onsuccess = e => {
+      const cursor = e.target.result;
+      if (cursor) {
+        items.push({ id: cursor.key, ...cursor.value });
+        cursor.continue();
+      } else {
+        res(items);
+      }
+    };
+    req.onerror = e => rej(e);
+  });
+}
+
+// ──────────────────────────────────────────────
+// AUDIO ENGINE
+// ──────────────────────────────────────────────
+function initAudioCtx() {
+  if (audioCtx) return;
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  analyser = audioCtx.createAnalyser();
+  analyser.fftSize = 128;
+  gainNode = audioCtx.createGain();
+  gainNode.gain.value = parseFloat(document.getElementById('volume-bar').value);
+  sourceNode = audioCtx.createMediaElementSource(audio);
+  sourceNode.connect(analyser);
+  analyser.connect(gainNode);
+  gainNode.connect(audioCtx.destination);
+}
+
+function resumeCtx() {
+  if (audioCtx && audioCtx.state === 'suspended') {
+    audioCtx.resume();
+  }
+}
+
+// ──────────────────────────────────────────────
+// VISUALIZER
+// ──────────────────────────────────────────────
+function resizeCanvas() {
+  const panel = document.getElementById('visualizer-panel');
+  canvas.width = panel.offsetWidth;
+  canvas.height = panel.offsetHeight;
+}
+
+function drawViz() {
+  animFrameId = requestAnimationFrame(drawViz);
+  const W = canvas.width;
+  const H = canvas.height;
+  ctx2d.clearRect(0, 0, W, H);
+  ctx2d.fillStyle = '#EDE8DC';
+  ctx2d.fillRect(0, 0, W, H);
+
+  const barW = 4;
+  const gap = 2;
+  const step = barW + gap;
+  const numBars = Math.floor(W / step);
+
+  if (analyser && isPlaying) {
+    const data = new Uint8Array(analyser.frequencyBinCount);
+    analyser.getByteFrequencyData(data);
+    const binStep = Math.floor(data.length / numBars);
+    for (let i = 0; i < numBars; i++) {
+      const val = data[i * binStep] || 0;
+      const barH = Math.max(2, Math.floor((val / 255) * (H - 16)));
+      const x = i * step;
+      const y = H - barH;
+      ctx2d.fillStyle = (i % 2 === 0) ? '#2E2E2E' : '#D4A5A0';
+      ctx2d.fillRect(x, y, barW, barH);
+    }
+  } else {
+    // static flat line
+    for (let i = 0; i < numBars; i++) {
+      const x = i * step;
+      ctx2d.fillStyle = (i % 2 === 0) ? '#2E2E2E' : '#D4A5A0';
+      ctx2d.fillRect(x, H - 4, barW, 2);
+    }
+  }
+}
+
+// ──────────────────────────────────────────────
+// PLAYBACK
+// ──────────────────────────────────────────────
+function loadTrack(index, autoplay) {
+  if (index < 0 || index >= playlist.length) return;
+  currentIndex = index;
+  const track = playlist[index];
+
+  // Update art
+  const artFrame = document.getElementById('art-frame');
+  const defaultArt = document.getElementById('default-art');
+  if (track.coverArtBase64) {
+    let img = artFrame.querySelector('img');
+    if (!img) {
+      if (defaultArt) defaultArt.style.display = 'none';
+      img = document.createElement('img');
+      artFrame.appendChild(img);
+    }
+    img.src = track.coverArtBase64;
+    img.style.display = 'block';
+    if (defaultArt) defaultArt.style.display = 'none';
+  } else {
+    let img = artFrame.querySelector('img');
+    if (img) img.style.display = 'none';
+    if (defaultArt) defaultArt.style.display = 'block';
+  }
+
+  document.getElementById('track-title').textContent = track.title || 'UNKNOWN TITLE';
+  document.getElementById('track-artist').textContent = track.artist || 'Unknown Artist';
+  document.getElementById('time-current').textContent = '0:00';
+  document.getElementById('time-total').textContent = formatTime(track.duration || 0);
+  document.getElementById('seek-bar').value = 0;
+
+  const url = URL.createObjectURL(track.audioBlob);
+  audio.src = url;
+  audio.load();
+
+  if (autoplay) {
+    audio.play().then(() => {
+      isPlaying = true;
+      updatePlayBtn();
+      resumeCtx();
+    }).catch(err => console.warn('Play failed:', err));
+  }
+
+  renderPlaylist();
+}
+
+function togglePlay() {
+  initAudioCtx();
+  resumeCtx();
+  if (playlist.length === 0) return;
+  if (currentIndex < 0) { loadTrack(0, true); return; }
+
+  if (isPlaying) {
+    audio.pause();
+    isPlaying = false;
+  } else {
+    audio.play().catch(e => console.warn(e));
+    isPlaying = true;
+    resumeCtx();
+  }
+  updatePlayBtn();
+}
+
+function updatePlayBtn() {
+  document.getElementById('play-icon').style.display = isPlaying ? 'none' : 'block';
+  document.getElementById('pause-icon').style.display = isPlaying ? 'block' : 'none';
+}
+
+function playNext() {
+  if (playlist.length === 0) return;
+  let next;
+  if (shuffle) {
+    do { next = Math.floor(Math.random() * playlist.length); }
+    while (playlist.length > 1 && next === currentIndex);
+  } else {
+    next = (currentIndex + 1) % playlist.length;
+  }
+  loadTrack(next, true);
+}
+
+function playPrev() {
+  if (playlist.length === 0) return;
+  if (audio.currentTime > 3) { audio.currentTime = 0; return; }
+  const prev = (currentIndex - 1 + playlist.length) % playlist.length;
+  loadTrack(prev, true);
+}
+
+// ──────────────────────────────────────────────
+// SEEK & VOLUME
+// ──────────────────────────────────────────────
+const seekBar = document.getElementById('seek-bar');
+seekBar.addEventListener('mousedown', () => { isSeeking = true; });
+seekBar.addEventListener('touchstart', () => { isSeeking = true; }, { passive: true });
+seekBar.addEventListener('input', () => {
+  if (!isNaN(audio.duration)) {
+    audio.currentTime = (seekBar.value / 100) * audio.duration;
+  }
+});
+seekBar.addEventListener('mouseup', () => { isSeeking = false; });
+seekBar.addEventListener('touchend', () => { isSeeking = false; });
+
+audio.addEventListener('timeupdate', () => {
+  if (isSeeking) return;
+  if (!isNaN(audio.duration) && audio.duration > 0) {
+    seekBar.value = (audio.currentTime / audio.duration) * 100;
+  }
+  document.getElementById('time-current').textContent = formatTime(audio.currentTime);
+});
+
+audio.addEventListener('loadedmetadata', () => {
+  document.getElementById('time-total').textContent = formatTime(audio.duration);
+  if (currentIndex >= 0) playlist[currentIndex].duration = audio.duration;
+});
+
+audio.addEventListener('ended', () => {
+  isPlaying = false;
+  updatePlayBtn();
+  if (repeat) {
+    audio.currentTime = 0;
+    audio.play().then(() => { isPlaying = true; updatePlayBtn(); });
+  } else {
+    playNext();
+  }
+});
+
+audio.addEventListener('play', () => { isPlaying = true; updatePlayBtn(); });
+audio.addEventListener('pause', () => { isPlaying = false; updatePlayBtn(); });
+
+const volBar = document.getElementById('volume-bar');
+volBar.addEventListener('input', () => {
+  if (gainNode) gainNode.gain.value = parseFloat(volBar.value);
+});
+
+// ──────────────────────────────────────────────
+// CONTROLS
+// ──────────────────────────────────────────────
+document.getElementById('btn-play').addEventListener('click', () => {
+  initAudioCtx();
+  togglePlay();
+});
+document.getElementById('btn-prev').addEventListener('click', playPrev);
+document.getElementById('btn-next').addEventListener('click', playNext);
+
+document.getElementById('btn-shuffle').addEventListener('click', function() {
+  shuffle = !shuffle;
+  this.classList.toggle('active', shuffle);
+});
+
+document.getElementById('btn-repeat').addEventListener('click', function() {
+  repeat = !repeat;
+  this.classList.toggle('active', repeat);
+});
+
+// ──────────────────────────────────────────────
+// FILE UPLOAD
+// ──────────────────────────────────────────────
+document.getElementById('btn-add').addEventListener('click', () => {
+  document.getElementById('file-input').click();
+});
+
+document.getElementById('file-input').addEventListener('change', function(e) {
+  const files = Array.from(e.target.files);
+  files.forEach(file => processFile(file));
+  this.value = '';
+});
+
+function processFile(file) {
+  jsmediatags.read(file, {
+    onSuccess: async (tag) => {
+      const tags = tag.tags;
+      const title = tags.title || file.name.replace(/\.[^/.]+$/, '');
+      const artist = tags.artist || 'Unknown Artist';
+      let coverArtBase64 = null;
+
+      if (tags.picture) {
+        const pic = tags.picture;
+        const bytes = new Uint8Array(pic.data);
+        let binary = '';
+        bytes.forEach(b => binary += String.fromCharCode(b));
+        coverArtBase64 = `data:${pic.format};base64,${btoa(binary)}`;
+      }
+
+      await saveTrack({ title, artist, coverArtBase64, audioBlob: file, duration: 0 });
+    },
+    onError: async () => {
+      const title = file.name.replace(/\.[^/.]+$/, '');
+      await saveTrack({ title, artist: 'Unknown Artist', coverArtBase64: null, audioBlob: file, duration: 0 });
+    }
+  });
+}
+
+async function saveTrack(track) {
+  try {
+    const id = await dbPut(track);
+    const stored = { ...track, id };
+    // Get duration from audio
+    const tmpAudio = new Audio();
+    const url = URL.createObjectURL(track.audioBlob);
+    tmpAudio.src = url;
+    tmpAudio.addEventListener('loadedmetadata', async () => {
+      stored.duration = tmpAudio.duration;
+      URL.revokeObjectURL(url);
+    });
+    playlist.push(stored);
+    renderPlaylist();
+    showToast('TRACK SAVED: ' + track.title.substring(0, 20).toUpperCase());
+    if (playlist.length === 1) loadTrack(0, false);
+  } catch (err) {
+    console.error('Save error:', err);
+    showToast('ERROR SAVING TRACK');
+  }
+}
+
+// ──────────────────────────────────────────────
+// PLAYLIST RENDER
+// ──────────────────────────────────────────────
+function renderPlaylist() {
+  const list = document.getElementById('playlist-list');
+  if (playlist.length === 0) {
+    list.innerHTML = '<div id="empty-msg">NO TRACKS LOADED<br>TAP + ADD TO BEGIN</div>';
+    return;
+  }
+
+  list.innerHTML = '';
+  playlist.forEach((track, i) => {
+    const row = document.createElement('div');
+    row.className = 'track-row' + (i === currentIndex ? ' active' : '');
+    row.dataset.index = i;
+
+    // Thumbnail
+    const thumb = document.createElement('div');
+    thumb.className = 'track-thumb';
+    if (track.coverArtBase64) {
+      const img = document.createElement('img');
+      img.src = track.coverArtBase64;
+      thumb.appendChild(img);
+    } else {
+      thumb.innerHTML = getSmallPlaceholderSVG();
+    }
+
+    // Meta
+    const meta = document.createElement('div');
+    meta.className = 'track-meta';
+    const name = document.createElement('div');
+    name.className = 'track-name';
+    name.textContent = (track.title || 'UNKNOWN').toUpperCase();
+    const art = document.createElement('div');
+    art.className = 'track-artist-small';
+    art.textContent = track.artist || 'Unknown Artist';
+    meta.appendChild(name);
+    meta.appendChild(art);
+
+    // Duration
+    const dur = document.createElement('div');
+    dur.className = 'track-dur';
+    dur.textContent = formatTime(track.duration || 0);
+
+    row.appendChild(thumb);
+    row.appendChild(meta);
+    row.appendChild(dur);
+
+    row.addEventListener('click', () => {
+      initAudioCtx();
+      loadTrack(i, true);
+    });
+
+    list.appendChild(row);
+  });
+}
+
+function getSmallPlaceholderSVG() {
+  return `<svg viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg" image-rendering="pixelated">
+    <rect width="36" height="36" fill="#EDE8DC"/>
+    <rect x="6" y="2" width="24" height="2" fill="#2E2E2E"/>
+    <rect x="2" y="6" width="2" height="24" fill="#2E2E2E"/>
+    <rect x="6" y="32" width="24" height="2" fill="#2E2E2E"/>
+    <rect x="32" y="6" width="2" height="24" fill="#2E2E2E"/>
+    <rect x="4" y="4" width="28" height="28" fill="#1A1A1A"/>
+    <rect x="10" y="8" width="16" height="16" fill="#D4A5A0"/>
+    <rect x="16" y="15" width="4" height="6" fill="#EDE8DC"/>
+    <rect x="14" y="17" width="8" height="2" fill="#EDE8DC"/>
+    <rect x="8" y="28" width="20" height="2" fill="#2E2E2E"/>
+  </svg>`;
+}
+
+// ──────────────────────────────────────────────
+// UTILS
+// ──────────────────────────────────────────────
+function formatTime(secs) {
+  if (isNaN(secs) || secs === Infinity) return '0:00';
+  const m = Math.floor(secs / 60);
+  const s = Math.floor(secs % 60);
+  return `${m}:${s.toString().padStart(2, '0')}`;
+}
+
+let toastTimer;
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.style.display = 'block';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { toast.style.display = 'none'; }, 2000);
+}
+
+// ──────────────────────────────────────────────
+// INIT
+// ──────────────────────────────────────────────
+async function init() {
+  await openDB();
+  const stored = await dbGetAll();
+  stored.forEach(t => playlist.push(t));
+  renderPlaylist();
+  resizeCanvas();
+  drawViz();
+  if (playlist.length > 0) {
+    loadTrack(0, false);
+  }
+}
+
+window.addEventListener('resize', resizeCanvas);
+init();
+</script>
+</body>
+</html>
