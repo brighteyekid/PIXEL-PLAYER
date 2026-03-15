@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -12,366 +13,286 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jsmediatags/3.9.5/jsmediatags.min.js"></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
   :root {
-    --off-white: #F5F0E8;
-    --cream: #EDE8DC;
-    --dusty-rose: #D4A5A0;
-    --slate-blue: #7A8FA6;
-    --sage: #8FAF8A;
-    --charcoal: #2E2E2E;
-    --warm-gray: #B0A898;
-    --ink: #1A1A1A;
+    --off-white: #F5F0E8; --cream: #EDE8DC; --dusty-rose: #D4A5A0;
+    --slate-blue: #7A8FA6; --sage: #8FAF8A; --charcoal: #2E2E2E;
+    --warm-gray: #B0A898; --ink: #1A1A1A;
   }
-
-  html, body {
-    width: 100%; height: 100%;
-    overflow: hidden;
-    background: var(--cream);
-    color: var(--ink);
-    image-rendering: pixelated;
-  }
-
+  html { height: 100%; }
   body {
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
+    height: 100%; overflow: hidden;
+    display: flex; justify-content: center; align-items: flex-start;
     background-color: var(--warm-gray);
     background-image: radial-gradient(circle, rgba(46,46,46,0.3) 1px, transparent 1px);
     background-size: 8px 8px;
   }
 
-  #app {
-    width: 390px;
-    height: 100dvh;
-    max-height: 100dvh;
-    background-color: var(--off-white);
-    background-image: radial-gradient(circle, rgba(46,46,46,0.06) 1px, transparent 1px);
-    background-size: 6px 6px;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    border-left: 2px solid var(--ink);
-    border-right: 2px solid var(--ink);
-    position: relative;
-  }
+/* The app container fills the full viewport height exactly */
+#app {
+width: 100%; max-width: 390px;
+/* Stack of fallbacks so every iOS version gets a value */
+height: 100vh;
+height: 100dvh;
+height: -webkit-fill-available;
+background-color: var(–off-white);
+background-image: radial-gradient(circle, rgba(46,46,46,0.06) 1px, transparent 1px);
+background-size: 6px 6px;
+display: flex; flex-direction: column;
+/* Critical: outer container must NOT scroll; only playlist-scroll scrolls */
+overflow: hidden;
+border-left: 2px solid var(–ink); border-right: 2px solid var(–ink);
+}
 
-  /* PANEL 1: HEADER */
-  #header {
-    height: 48px; min-height: 48px;
-    background: var(--cream);
-    border-bottom: 2px solid var(--ink);
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 0 12px;
-  }
-  #app-name {
-    font-family: 'Press Start 2P', monospace;
-    font-size: 8px; color: var(--ink); letter-spacing: 1px;
-  }
+/* Every panel except playlist is flex-shrink:0 so it takes its natural height
+and does NOT grow. The playlist panel gets flex:1 and swallows remaining space. */
 
-  /* PANEL 2: ALBUM ART */
-  #art-panel {
-    min-height: 200px; height: 200px;
-    background: var(--off-white);
-    border-bottom: 2px solid var(--ink);
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    padding: 8px 12px 6px; gap: 6px;
-  }
-  #art-frame {
-    width: 130px; height: 130px;
-    border: 3px solid var(--ink);
-    box-shadow: 4px 4px 0 var(--charcoal);
-    overflow: hidden; flex-shrink: 0;
-    background: var(--cream);
-    image-rendering: pixelated;
-  }
-  #art-frame img { width:100%; height:100%; object-fit:cover; image-rendering:pixelated; display:block; }
-  #art-frame svg { width:100%; height:100%; display:block; }
-  #track-info { text-align:center; width:100%; padding:0 8px; }
-  #track-title {
-    font-family: 'Press Start 2P', monospace;
-    font-size: 8px; color: var(--ink);
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    line-height: 1.6; max-width: 340px; margin: 0 auto;
-  }
-  #track-artist {
-    font-family: 'VT323', monospace;
-    font-size: 17px; color: var(--slate-blue);
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    max-width: 340px; margin: 0 auto; display: block;
-  }
+/* HEADER */
+#header {
+flex: 0 0 auto;
+height: 42px;
+background: var(–cream); border-bottom: 2px solid var(–ink);
+display: flex; align-items: center; justify-content: space-between;
+padding: 0 12px;
+}
+#app-name { font-family:‘Press Start 2P’,monospace; font-size:8px; color:var(–ink); letter-spacing:1px; }
 
-  /* PANEL 3: VISUALIZER */
-  #visualizer-panel {
-    height: 72px; min-height: 72px;
-    background: var(--cream);
-    border-bottom: 2px solid var(--ink);
-    border-left: 2px solid var(--ink);
-    border-right: 2px solid var(--ink);
-    margin: 0 -2px;
-    position: relative; overflow: hidden;
-  }
-  #freq-label {
-    font-family: 'Press Start 2P', monospace;
-    font-size: 6px; color: var(--ink);
-    position: absolute; top: 4px; left: 6px; z-index: 2; letter-spacing: 1px;
-  }
-  #visualizer { width:100%; height:100%; display:block; image-rendering:pixelated; }
+/* ALBUM ART — compact, no min-height */
+#art-panel {
+flex: 0 0 auto;
+background: var(–off-white); border-bottom: 2px solid var(–ink);
+display: flex; flex-direction: column; align-items: center; justify-content: center;
+padding: 6px 12px 5px; gap: 4px;
+}
+#art-frame {
+width: 100px; height: 100px;
+border: 3px solid var(–ink); box-shadow: 4px 4px 0 var(–charcoal);
+overflow: hidden; background: var(–cream); image-rendering: pixelated;
+}
+#art-frame img { width:100%; height:100%; object-fit:cover; image-rendering:pixelated; display:block; }
+#art-frame svg { width:100%; height:100%; display:block; }
+#track-info { text-align:center; width:100%; padding:0 8px; }
+#track-title {
+font-family:‘Press Start 2P’,monospace; font-size:7px; color:var(–ink);
+white-space:nowrap; overflow:hidden; text-overflow:ellipsis; line-height:1.5;
+}
+#track-artist {
+font-family:‘VT323’,monospace; font-size:15px; color:var(–slate-blue);
+white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:block;
+}
 
-  /* PANEL 4: CONTROLS */
-  #controls-panel {
-    background: var(--off-white);
-    border-bottom: 2px solid var(--ink);
-    padding: 7px 12px 7px;
-    display: flex; flex-direction: column; gap: 5px;
-  }
-  input[type="range"] {
-    -webkit-appearance: none; appearance: none;
-    width: 100%; height: 4px;
-    background: var(--warm-gray);
-    border: 2px solid var(--ink); border-radius: 0;
-    outline: none; cursor: pointer;
-  }
-  input[type="range"]::-webkit-slider-thumb {
-    -webkit-appearance: none; appearance: none;
-    width: 12px; height: 12px;
-    background: var(--ink); border-radius: 0; cursor: pointer; border: none;
-  }
-  input[type="range"]::-moz-range-thumb {
-    width: 12px; height: 12px;
-    background: var(--ink); border-radius: 0; cursor: pointer; border: none;
-  }
-  #time-row { display:flex; justify-content:space-between; }
-  .time-display { font-family: 'VT323', monospace; font-size: 16px; color: var(--charcoal); }
+/* VISUALIZER */
+#visualizer-panel {
+flex: 0 0 50px;
+background: var(–cream); border-bottom: 2px solid var(–ink);
+position: relative; overflow: hidden;
+}
+#freq-label {
+font-family:‘Press Start 2P’,monospace; font-size:5px; color:var(–ink);
+position:absolute; top:3px; left:6px; z-index:2; letter-spacing:1px;
+}
+#visualizer { width:100%; height:100%; display:block; image-rendering:pixelated; }
 
-  #transport { display:flex; align-items:center; justify-content:center; gap:10px; }
-  .ctrl-btn {
-    width: 52px; height: 52px;
-    background: var(--off-white);
-    border: 2px solid var(--ink);
-    box-shadow: 3px 3px 0 var(--ink);
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer; transition: none; flex-shrink: 0;
-    image-rendering: pixelated;
-    -webkit-tap-highlight-color: transparent; user-select: none;
-  }
-  .ctrl-btn:active { box-shadow: 1px 1px 0 var(--ink); transform: translate(2px,2px); }
-  #btn-play { width:60px; height:60px; }
+/* CONTROLS */
+#controls-panel {
+flex: 0 0 auto;
+background: var(–off-white); border-bottom: 2px solid var(–ink);
+padding: 5px 12px 5px;
+display: flex; flex-direction: column; gap: 4px;
+}
+input[type=“range”] {
+-webkit-appearance:none; appearance:none; width:100%; height:4px;
+background:var(–warm-gray); border:2px solid var(–ink); border-radius:0;
+outline:none; cursor:pointer;
+}
+input[type=“range”]::-webkit-slider-thumb {
+-webkit-appearance:none; width:12px; height:12px;
+background:var(–ink); border-radius:0; cursor:pointer; border:none;
+}
+input[type=“range”]::-moz-range-thumb {
+width:12px; height:12px; background:var(–ink); border-radius:0; border:none;
+}
+#time-row { display:flex; justify-content:space-between; }
+.time-display { font-family:‘VT323’,monospace; font-size:14px; color:var(–charcoal); }
+#transport { display:flex; align-items:center; justify-content:center; gap:8px; }
+.ctrl-btn {
+width:44px; height:44px; background:var(–off-white);
+border:2px solid var(–ink); box-shadow:3px 3px 0 var(–ink);
+display:flex; align-items:center; justify-content:center;
+cursor:pointer; flex-shrink:0; image-rendering:pixelated;
+-webkit-tap-highlight-color:transparent; user-select:none;
+}
+.ctrl-btn:active { box-shadow:1px 1px 0 var(–ink); transform:translate(2px,2px); }
+#btn-play { width:52px; height:52px; }
+#volume-row { display:flex; align-items:center; gap:8px; }
+#volume-row input[type=“range”] { flex:1; }
+#mode-row { display:flex; gap:8px; justify-content:center; }
+.mode-btn {
+width:34px; height:28px; background:var(–off-white);
+border:2px solid var(–ink); box-shadow:2px 2px 0 var(–ink);
+display:flex; align-items:center; justify-content:center;
+cursor:pointer; font-family:‘Press Start 2P’,monospace; font-size:5px; color:var(–ink);
+-webkit-tap-highlight-color:transparent; user-select:none;
+}
+.mode-btn:active { box-shadow:1px 1px 0 var(–ink); transform:translate(2px,2px); }
+.mode-btn.active { background:var(–ink); color:var(–off-white); }
 
-  #volume-row { display:flex; align-items:center; gap:8px; }
-  #volume-row input[type="range"] { flex:1; }
+/* DSP PANEL */
+#dsp-panel {
+flex: 0 0 auto;
+background: var(–cream); border-bottom: 2px solid var(–ink);
+padding: 5px 12px 6px;
+display: flex; flex-direction: column; gap: 5px;
+}
+#dsp-header-row { display:flex; align-items:center; justify-content:space-between; }
+#dsp-label { font-family:‘Press Start 2P’,monospace; font-size:6px; color:var(–ink); letter-spacing:1px; }
+#dsp-status { font-family:‘VT323’,monospace; font-size:13px; color:var(–warm-gray); }
+.dsp-row { display:flex; align-items:center; gap:8px; }
+.dsp-toggle {
+width:48px; height:20px; background:var(–off-white);
+border:2px solid var(–ink); box-shadow:2px 2px 0 var(–ink);
+font-family:‘Press Start 2P’,monospace; font-size:5px; color:var(–ink);
+cursor:pointer; display:flex; align-items:center; justify-content:center;
+flex-shrink:0; -webkit-tap-highlight-color:transparent; user-select:none;
+}
+.dsp-toggle:active { box-shadow:1px 1px 0 var(–ink); transform:translate(1px,1px); }
+.dsp-toggle.active { background:var(–ink); color:var(–off-white); box-shadow:2px 2px 0 var(–slate-blue); }
+.dsp-slider-wrap { flex:1; display:flex; flex-direction:column; gap:2px; }
+.dsp-slider-label { font-family:‘VT323’,monospace; font-size:12px; color:var(–slate-blue); display:flex; justify-content:space-between; }
+.dsp-val { color:var(–charcoal); font-family:‘VT323’,monospace; font-size:12px; }
+.dsp-slider-wrap input[type=“range”] {
+width:100%; height:4px; background:var(–warm-gray); border:2px solid var(–ink);
+border-radius:0; outline:none; -webkit-appearance:none; appearance:none;
+}
+.dsp-slider-wrap input[type=“range”]::-webkit-slider-thumb {
+-webkit-appearance:none; width:10px; height:10px; background:var(–ink); border-radius:0; cursor:pointer;
+}
+.dsp-indicator { width:7px; height:7px; background:var(–warm-gray); border:1px solid var(–ink); flex-shrink:0; align-self:center; }
+.dsp-indicator.on { background:var(–sage); }
 
-  #mode-row { display:flex; gap:8px; justify-content:center; }
-  .mode-btn {
-    width: 36px; height: 36px;
-    background: var(--off-white);
-    border: 2px solid var(--ink);
-    box-shadow: 3px 3px 0 var(--ink);
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer;
-    font-family: 'Press Start 2P', monospace; font-size: 5px; color: var(--ink);
-    -webkit-tap-highlight-color: transparent; user-select: none; transition: none;
-  }
-  .mode-btn:active { box-shadow: 1px 1px 0 var(--ink); transform: translate(2px,2px); }
-  .mode-btn.active { background: var(--ink); color: var(--off-white); }
+/* PLAYLIST — this one gets all remaining space and scrolls internally */
+#playlist-panel {
+flex: 1 1 0;      /* grow to fill leftover space */
+min-height: 0;    /* CRITICAL: without this, flex children won’t shrink below content height */
+display: flex; flex-direction: column;
+overflow: hidden;
+}
+#playlist-header {
+flex: 0 0 32px;
+background:var(–cream); border-bottom:2px solid var(–ink);
+display:flex; align-items:center; justify-content:space-between;
+padding:0 10px;
+}
+#queue-label { font-family:‘Press Start 2P’,monospace; font-size:7px; color:var(–ink); }
+#btn-add {
+width:58px; height:22px; background:var(–off-white);
+border:2px solid var(–ink); box-shadow:2px 2px 0 var(–ink);
+font-family:‘Press Start 2P’,monospace; font-size:6px; color:var(–ink);
+cursor:pointer; display:flex; align-items:center; justify-content:center;
+-webkit-tap-highlight-color:transparent; user-select:none;
+}
+#btn-add:active { box-shadow:1px 1px 0 var(–ink); transform:translate(1px,1px); }
 
-  /* ── DSP PANEL ── */
-  #dsp-panel {
-    background: var(--cream);
-    border-bottom: 2px solid var(--ink);
-    padding: 6px 12px 7px;
-    display: flex; flex-direction: column; gap: 6px;
-  }
-  #dsp-header-row {
-    display: flex; align-items: center; justify-content: space-between;
-  }
-  #dsp-label {
-    font-family: 'Press Start 2P', monospace;
-    font-size: 6px; color: var(--ink); letter-spacing: 1px;
-  }
-  #dsp-status {
-    font-family: 'VT323', monospace;
-    font-size: 13px; color: var(--warm-gray);
-  }
-  .dsp-row {
-    display: flex; align-items: center; gap: 8px;
-  }
-  .dsp-toggle {
-    width: 52px; height: 22px;
-    background: var(--off-white);
-    border: 2px solid var(--ink);
-    box-shadow: 2px 2px 0 var(--ink);
-    font-family: 'Press Start 2P', monospace;
-    font-size: 5px; color: var(--ink);
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-    -webkit-tap-highlight-color: transparent; user-select: none; transition: none;
-    line-height: 1;
-  }
-  .dsp-toggle:active { box-shadow:1px 1px 0 var(--ink); transform:translate(1px,1px); }
-  .dsp-toggle.active { background: var(--ink); color: var(--off-white); box-shadow: 2px 2px 0 var(--slate-blue); }
-  .dsp-slider-wrap {
-    flex: 1; display: flex; flex-direction: column; gap: 2px;
-  }
-  .dsp-slider-label {
-    font-family: 'VT323', monospace; font-size: 13px; color: var(--slate-blue);
-    display: flex; justify-content: space-between;
-  }
-  .dsp-val { color: var(--charcoal); font-family: 'VT323', monospace; font-size: 13px; }
-  .dsp-slider-wrap input[type="range"] {
-    width: 100%; height: 4px;
-    background: var(--warm-gray);
-    border: 2px solid var(--ink); border-radius: 0;
-    outline: none; -webkit-appearance: none; appearance: none;
-  }
-  .dsp-slider-wrap input[type="range"]::-webkit-slider-thumb {
-    -webkit-appearance: none; width:10px; height:10px;
-    background: var(--ink); border-radius:0; cursor:pointer;
-  }
-  .dsp-indicator {
-    width: 7px; height: 7px;
-    background: var(--warm-gray);
-    border: 1px solid var(--ink);
-    flex-shrink: 0; align-self: center;
-  }
-  .dsp-indicator.on { background: var(--sage); }
+/* THE SCROLLABLE CONTAINER — this is what actually scrolls */
+#playlist-scroll {
+flex: 1 1 0;
+min-height: 0;        /* allow shrinking */
+overflow-y: scroll;   /* always show scrollbar affordance */
+overflow-x: hidden;
+-webkit-overflow-scrolling: touch;  /* momentum scrolling on iOS */
+overscroll-behavior-y: contain;
+scrollbar-width: thin;
+scrollbar-color: var(–slate-blue) var(–cream);
+}
+#playlist-scroll::-webkit-scrollbar { width:4px; }
+#playlist-scroll::-webkit-scrollbar-track { background:var(–cream); }
+#playlist-scroll::-webkit-scrollbar-thumb { background:var(–slate-blue); border-radius:0; }
 
-  /* PANEL 5: PLAYLIST */
-  #playlist-panel {
-    flex: 1; display: flex; flex-direction: column;
-    overflow: hidden; min-height: 0;
-  }
-  #playlist-header {
-    height: 36px; min-height: 36px;
-    background: var(--cream);
-    border-bottom: 2px solid var(--ink);
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 0 10px;
-  }
-  #queue-label { font-family: 'Press Start 2P', monospace; font-size: 7px; color: var(--ink); }
-  #btn-add {
-    width: 60px; height: 24px;
-    background: var(--off-white);
-    border: 2px solid var(--ink); box-shadow: 2px 2px 0 var(--ink);
-    font-family: 'Press Start 2P', monospace; font-size: 6px; color: var(--ink);
-    cursor: pointer; display: flex; align-items: center; justify-content: center;
-    -webkit-tap-highlight-color: transparent; user-select: none;
-  }
-  #btn-add:active { box-shadow:1px 1px 0 var(--ink); transform:translate(1px,1px); }
+/* Track rows must NOT stretch the container — they define scroll content height */
+#playlist-list { display:flex; flex-direction:column; }
 
-  #playlist-scroll {
-    flex: 1; overflow-y: auto; overflow-x: hidden; min-height: 0;
-    scrollbar-width: thin; scrollbar-color: var(--slate-blue) var(--cream);
-  }
-  #playlist-scroll::-webkit-scrollbar { width: 4px; }
-  #playlist-scroll::-webkit-scrollbar-track { background: var(--cream); }
-  #playlist-scroll::-webkit-scrollbar-thumb { background: var(--slate-blue); border-radius: 0; }
+.track-row {
+height:48px; flex:0 0 48px;
+border-bottom:1px solid var(–warm-gray);
+display:flex; align-items:center; padding:0 8px; gap:8px;
+cursor:pointer; position:relative; background:var(–off-white);
+-webkit-tap-highlight-color:transparent; user-select:none;
+}
+.track-row:active { background:var(–cream); }
+.track-row.active { background:var(–dusty-rose); }
+.track-row.active::before {
+content:’’; position:absolute; left:0; top:50%; transform:translateY(-50%);
+width:4px; height:4px; background:var(–ink);
+}
+.track-thumb {
+width:32px; height:32px; border:1px solid var(–ink); flex-shrink:0;
+overflow:hidden; image-rendering:pixelated; background:var(–cream);
+}
+.track-thumb img { width:100%; height:100%; object-fit:cover; image-rendering:pixelated; display:block; }
+.track-thumb svg { width:100%; height:100%; display:block; }
+.track-meta { flex:1; min-width:0; display:flex; flex-direction:column; gap:1px; }
+.track-name {
+font-family:‘Press Start 2P’,monospace; font-size:6px; color:var(–ink);
+white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.track-artist-small {
+font-family:‘VT323’,monospace; font-size:13px; color:var(–slate-blue);
+white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.track-dur { font-family:‘VT323’,monospace; font-size:13px; color:var(–charcoal); flex-shrink:0; }
+#empty-msg {
+font-family:‘Press Start 2P’,monospace; font-size:7px; color:var(–warm-gray);
+text-align:center; padding:20px 16px; line-height:2;
+}
 
-  .track-row {
-    height: 52px; border-bottom: 1px solid var(--warm-gray);
-    display: flex; align-items: center; padding: 0 8px; gap: 8px;
-    cursor: pointer; position: relative; background: var(--off-white);
-    -webkit-tap-highlight-color: transparent; user-select: none;
-  }
-  .track-row:active { background: var(--cream); }
-  .track-row.active { background: var(--dusty-rose); }
-  .track-row.active::before {
-    content:''; position:absolute; left:0; top:50%; transform:translateY(-50%);
-    width:4px; height:4px; background:var(--ink);
-  }
-  .track-thumb {
-    width:36px; height:36px; border:1px solid var(--ink); flex-shrink:0;
-    overflow:hidden; image-rendering:pixelated; background:var(--cream);
-  }
-  .track-thumb img { width:100%; height:100%; object-fit:cover; image-rendering:pixelated; display:block; }
-  .track-thumb svg { width:100%; height:100%; display:block; }
-  .track-meta { flex:1; min-width:0; display:flex; flex-direction:column; gap:2px; }
-  .track-name {
-    font-family: 'Press Start 2P', monospace; font-size: 6px; color: var(--ink);
-    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
-  }
-  .track-artist-small {
-    font-family: 'VT323', monospace; font-size: 14px; color: var(--slate-blue);
-    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
-  }
-  .track-dur { font-family:'VT323',monospace; font-size:14px; color:var(--charcoal); flex-shrink:0; }
-  #empty-msg {
-    font-family:'Press Start 2P',monospace; font-size:7px; color:var(--warm-gray);
-    text-align:center; padding:24px 16px; line-height:2;
-  }
-
-  /* Toast */
-  #toast {
-    position:fixed; bottom:0; left:50%; transform:translateX(-50%);
-    width:390px; background:var(--charcoal); color:var(--off-white);
-    font-family:'VT323',monospace; font-size:14px;
-    padding:8px 12px; border-radius:0; display:none; z-index:100; text-align:center;
-  }
-  #file-input { display:none; }
+/* Toast */
+#toast {
+position:fixed; bottom:0; left:50%; transform:translateX(-50%);
+width:100%; max-width:390px; background:var(–charcoal); color:var(–off-white);
+font-family:‘VT323’,monospace; font-size:14px; padding:8px 12px;
+border-radius:0; display:none; z-index:100; text-align:center;
+}
+#file-input { display:none; }
 </style>
+
 </head>
 <body>
 <div id="app">
 
-  <!-- PANEL 1: HEADER -->
+  <!-- HEADER -->
+
   <div id="header">
     <span id="app-name">PIXELPLAY</span>
     <svg width="32" height="20" viewBox="0 0 32 20" xmlns="http://www.w3.org/2000/svg" image-rendering="pixelated">
       <rect x="0" y="0" width="32" height="20" fill="#EDE8DC"/>
-      <rect x="0" y="0" width="32" height="2" fill="#1A1A1A"/>
-      <rect x="0" y="18" width="32" height="2" fill="#1A1A1A"/>
-      <rect x="0" y="0" width="2" height="20" fill="#1A1A1A"/>
-      <rect x="30" y="0" width="2" height="20" fill="#1A1A1A"/>
-      <rect x="5" y="5" width="3" height="1" fill="#1A1A1A"/>
-      <rect x="4" y="6" width="5" height="3" fill="#1A1A1A"/>
-      <rect x="5" y="9" width="3" height="1" fill="#1A1A1A"/>
-      <rect x="24" y="5" width="3" height="1" fill="#1A1A1A"/>
-      <rect x="23" y="6" width="5" height="3" fill="#1A1A1A"/>
-      <rect x="24" y="9" width="3" height="1" fill="#1A1A1A"/>
+      <rect x="0" y="0" width="32" height="2" fill="#1A1A1A"/><rect x="0" y="18" width="32" height="2" fill="#1A1A1A"/>
+      <rect x="0" y="0" width="2" height="20" fill="#1A1A1A"/><rect x="30" y="0" width="2" height="20" fill="#1A1A1A"/>
+      <rect x="5" y="5" width="3" height="1" fill="#1A1A1A"/><rect x="4" y="6" width="5" height="3" fill="#1A1A1A"/><rect x="5" y="9" width="3" height="1" fill="#1A1A1A"/>
+      <rect x="24" y="5" width="3" height="1" fill="#1A1A1A"/><rect x="23" y="6" width="5" height="3" fill="#1A1A1A"/><rect x="24" y="9" width="3" height="1" fill="#1A1A1A"/>
       <rect x="11" y="8" width="10" height="4" fill="#B0A898"/>
-      <rect x="11" y="8" width="10" height="1" fill="#1A1A1A"/>
-      <rect x="11" y="11" width="10" height="1" fill="#1A1A1A"/>
-      <rect x="11" y="8" width="1" height="4" fill="#1A1A1A"/>
-      <rect x="20" y="8" width="1" height="4" fill="#1A1A1A"/>
-      <rect x="9" y="7" width="2" height="1" fill="#2E2E2E"/>
-      <rect x="21" y="7" width="2" height="1" fill="#2E2E2E"/>
-      <rect x="6" y="14" width="4" height="4" fill="#B0A898"/>
-      <rect x="22" y="14" width="4" height="4" fill="#B0A898"/>
+      <rect x="11" y="8" width="10" height="1" fill="#1A1A1A"/><rect x="11" y="11" width="10" height="1" fill="#1A1A1A"/>
+      <rect x="11" y="8" width="1" height="4" fill="#1A1A1A"/><rect x="20" y="8" width="1" height="4" fill="#1A1A1A"/>
+      <rect x="9" y="7" width="2" height="1" fill="#2E2E2E"/><rect x="21" y="7" width="2" height="1" fill="#2E2E2E"/>
+      <rect x="6" y="14" width="4" height="4" fill="#B0A898"/><rect x="22" y="14" width="4" height="4" fill="#B0A898"/>
     </svg>
   </div>
 
-  <!-- PANEL 2: ALBUM ART -->
+  <!-- ALBUM ART -->
+
   <div id="art-panel">
     <div id="art-frame">
-      <svg id="default-art" viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg" image-rendering="pixelated">
-        <rect width="140" height="140" fill="#EDE8DC"/>
-        <rect x="20" y="10" width="100" height="8" fill="#2E2E2E"/>
-        <rect x="10" y="20" width="8" height="100" fill="#2E2E2E"/>
-        <rect x="20" y="122" width="100" height="8" fill="#2E2E2E"/>
-        <rect x="122" y="20" width="8" height="100" fill="#2E2E2E"/>
-        <rect x="10" y="10" width="10" height="10" fill="#2E2E2E"/>
-        <rect x="120" y="10" width="10" height="10" fill="#2E2E2E"/>
-        <rect x="10" y="120" width="10" height="10" fill="#2E2E2E"/>
-        <rect x="120" y="120" width="10" height="10" fill="#2E2E2E"/>
-        <rect x="18" y="18" width="104" height="104" fill="#1A1A1A"/>
-        <rect x="30" y="26" width="80" height="4" fill="#2E2E2E"/>
-        <rect x="26" y="30" width="4" height="80" fill="#2E2E2E"/>
-        <rect x="30" y="110" width="80" height="4" fill="#2E2E2E"/>
-        <rect x="110" y="30" width="4" height="80" fill="#2E2E2E"/>
-        <rect x="40" y="36" width="60" height="3" fill="#2E2E2E"/>
-        <rect x="36" y="40" width="3" height="60" fill="#2E2E2E"/>
-        <rect x="40" y="101" width="60" height="3" fill="#2E2E2E"/>
-        <rect x="101" y="40" width="3" height="60" fill="#2E2E2E"/>
-        <rect x="50" y="50" width="40" height="40" fill="#D4A5A0"/>
-        <rect x="66" y="64" width="8" height="2" fill="#EDE8DC"/>
-        <rect x="64" y="66" width="12" height="8" fill="#EDE8DC"/>
-        <rect x="66" y="74" width="8" height="2" fill="#EDE8DC"/>
-        <rect x="56" y="58" width="28" height="2" fill="#1A1A1A"/>
-        <rect x="58" y="62" width="24" height="2" fill="#1A1A1A"/>
-        <rect x="60" y="78" width="20" height="2" fill="#7A8FA6"/>
-        <rect x="58" y="82" width="24" height="2" fill="#7A8FA6"/>
+      <svg id="default-art" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" image-rendering="pixelated">
+        <rect width="100" height="100" fill="#EDE8DC"/>
+        <rect x="12" y="7" width="76" height="5" fill="#2E2E2E"/><rect x="7" y="12" width="5" height="76" fill="#2E2E2E"/>
+        <rect x="12" y="88" width="76" height="5" fill="#2E2E2E"/><rect x="88" y="12" width="5" height="76" fill="#2E2E2E"/>
+        <rect x="7" y="7" width="7" height="7" fill="#2E2E2E"/><rect x="86" y="7" width="7" height="7" fill="#2E2E2E"/>
+        <rect x="7" y="86" width="7" height="7" fill="#2E2E2E"/><rect x="86" y="86" width="7" height="7" fill="#2E2E2E"/>
+        <rect x="12" y="12" width="76" height="76" fill="#1A1A1A"/>
+        <rect x="22" y="18" width="56" height="3" fill="#2E2E2E"/><rect x="18" y="22" width="3" height="56" fill="#2E2E2E"/>
+        <rect x="22" y="79" width="56" height="3" fill="#2E2E2E"/><rect x="79" y="22" width="3" height="56" fill="#2E2E2E"/>
+        <rect x="34" y="34" width="32" height="32" fill="#D4A5A0"/>
+        <rect x="46" y="45" width="8" height="2" fill="#EDE8DC"/><rect x="44" y="47" width="12" height="6" fill="#EDE8DC"/><rect x="46" y="53" width="8" height="2" fill="#EDE8DC"/>
+        <rect x="38" y="40" width="24" height="2" fill="#1A1A1A"/><rect x="40" y="44" width="20" height="2" fill="#1A1A1A"/>
+        <rect x="40" y="56" width="20" height="2" fill="#7A8FA6"/><rect x="38" y="60" width="24" height="2" fill="#7A8FA6"/>
       </svg>
     </div>
     <div id="track-info">
@@ -380,98 +301,68 @@
     </div>
   </div>
 
-  <!-- PANEL 3: VISUALIZER -->
+  <!-- VISUALIZER -->
+
   <div id="visualizer-panel">
     <span id="freq-label">FREQ</span>
     <canvas id="visualizer"></canvas>
   </div>
 
-  <!-- PANEL 4: CONTROLS -->
+  <!-- CONTROLS -->
+
   <div id="controls-panel">
-    <div id="seek-container">
+    <div>
       <input type="range" id="seek-bar" min="0" max="100" value="0" step="0.1">
       <div id="time-row">
         <span class="time-display" id="time-current">0:00</span>
         <span class="time-display" id="time-total">0:00</span>
       </div>
     </div>
-
     <div id="transport">
-      <button class="ctrl-btn" id="btn-prev" aria-label="Previous">
-        <svg width="24" height="24" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" image-rendering="pixelated">
+      <button class="ctrl-btn" id="btn-prev">
+        <svg width="20" height="20" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" image-rendering="pixelated">
           <rect x="1" y="2" width="2" height="12" fill="#1A1A1A"/>
-          <rect x="3" y="7" width="1" height="2" fill="#1A1A1A"/>
-          <rect x="4" y="6" width="1" height="4" fill="#1A1A1A"/>
-          <rect x="5" y="5" width="1" height="6" fill="#1A1A1A"/>
-          <rect x="6" y="4" width="1" height="8" fill="#1A1A1A"/>
-          <rect x="7" y="3" width="1" height="10" fill="#1A1A1A"/>
-          <rect x="9" y="7" width="1" height="2" fill="#1A1A1A"/>
-          <rect x="10" y="6" width="1" height="4" fill="#1A1A1A"/>
-          <rect x="11" y="5" width="1" height="6" fill="#1A1A1A"/>
-          <rect x="12" y="4" width="1" height="8" fill="#1A1A1A"/>
-          <rect x="13" y="3" width="1" height="10" fill="#1A1A1A"/>
+          <rect x="3" y="7" width="1" height="2" fill="#1A1A1A"/><rect x="4" y="6" width="1" height="4" fill="#1A1A1A"/><rect x="5" y="5" width="1" height="6" fill="#1A1A1A"/><rect x="6" y="4" width="1" height="8" fill="#1A1A1A"/><rect x="7" y="3" width="1" height="10" fill="#1A1A1A"/>
+          <rect x="9" y="7" width="1" height="2" fill="#1A1A1A"/><rect x="10" y="6" width="1" height="4" fill="#1A1A1A"/><rect x="11" y="5" width="1" height="6" fill="#1A1A1A"/><rect x="12" y="4" width="1" height="8" fill="#1A1A1A"/><rect x="13" y="3" width="1" height="10" fill="#1A1A1A"/>
         </svg>
       </button>
-
-      <button class="ctrl-btn" id="btn-play" aria-label="Play/Pause">
-        <svg id="play-icon" width="28" height="28" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" image-rendering="pixelated">
-          <rect x="3" y="2" width="1" height="12" fill="#1A1A1A"/>
-          <rect x="4" y="3" width="1" height="10" fill="#1A1A1A"/>
-          <rect x="5" y="4" width="1" height="8" fill="#1A1A1A"/>
-          <rect x="6" y="5" width="1" height="6" fill="#1A1A1A"/>
-          <rect x="7" y="6" width="1" height="4" fill="#1A1A1A"/>
-          <rect x="8" y="7" width="1" height="2" fill="#1A1A1A"/>
+      <button class="ctrl-btn" id="btn-play">
+        <svg id="play-icon" width="24" height="24" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" image-rendering="pixelated">
+          <rect x="3" y="2" width="1" height="12" fill="#1A1A1A"/><rect x="4" y="3" width="1" height="10" fill="#1A1A1A"/><rect x="5" y="4" width="1" height="8" fill="#1A1A1A"/><rect x="6" y="5" width="1" height="6" fill="#1A1A1A"/><rect x="7" y="6" width="1" height="4" fill="#1A1A1A"/><rect x="8" y="7" width="1" height="2" fill="#1A1A1A"/>
         </svg>
-        <svg id="pause-icon" width="28" height="28" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" image-rendering="pixelated" style="display:none">
-          <rect x="3" y="2" width="4" height="12" fill="#1A1A1A"/>
-          <rect x="9" y="2" width="4" height="12" fill="#1A1A1A"/>
+        <svg id="pause-icon" width="24" height="24" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" image-rendering="pixelated" style="display:none">
+          <rect x="3" y="2" width="4" height="12" fill="#1A1A1A"/><rect x="9" y="2" width="4" height="12" fill="#1A1A1A"/>
         </svg>
       </button>
-
-      <button class="ctrl-btn" id="btn-next" aria-label="Next">
-        <svg width="24" height="24" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" image-rendering="pixelated">
-          <rect x="2" y="3" width="1" height="10" fill="#1A1A1A"/>
-          <rect x="3" y="4" width="1" height="8" fill="#1A1A1A"/>
-          <rect x="4" y="5" width="1" height="6" fill="#1A1A1A"/>
-          <rect x="5" y="6" width="1" height="4" fill="#1A1A1A"/>
-          <rect x="6" y="7" width="1" height="2" fill="#1A1A1A"/>
-          <rect x="8" y="3" width="1" height="10" fill="#1A1A1A"/>
-          <rect x="9" y="4" width="1" height="8" fill="#1A1A1A"/>
-          <rect x="10" y="5" width="1" height="6" fill="#1A1A1A"/>
-          <rect x="11" y="6" width="1" height="4" fill="#1A1A1A"/>
-          <rect x="12" y="7" width="1" height="2" fill="#1A1A1A"/>
+      <button class="ctrl-btn" id="btn-next">
+        <svg width="20" height="20" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" image-rendering="pixelated">
+          <rect x="2" y="3" width="1" height="10" fill="#1A1A1A"/><rect x="3" y="4" width="1" height="8" fill="#1A1A1A"/><rect x="4" y="5" width="1" height="6" fill="#1A1A1A"/><rect x="5" y="6" width="1" height="4" fill="#1A1A1A"/><rect x="6" y="7" width="1" height="2" fill="#1A1A1A"/>
+          <rect x="8" y="3" width="1" height="10" fill="#1A1A1A"/><rect x="9" y="4" width="1" height="8" fill="#1A1A1A"/><rect x="10" y="5" width="1" height="6" fill="#1A1A1A"/><rect x="11" y="6" width="1" height="4" fill="#1A1A1A"/><rect x="12" y="7" width="1" height="2" fill="#1A1A1A"/>
           <rect x="13" y="2" width="2" height="12" fill="#1A1A1A"/>
         </svg>
       </button>
     </div>
-
     <div id="volume-row">
-      <svg width="20" height="16" viewBox="0 0 20 16" xmlns="http://www.w3.org/2000/svg" image-rendering="pixelated">
+      <svg width="18" height="14" viewBox="0 0 20 16" xmlns="http://www.w3.org/2000/svg" image-rendering="pixelated">
         <rect x="1" y="5" width="5" height="6" fill="#1A1A1A"/>
-        <rect x="6" y="4" width="1" height="8" fill="#1A1A1A"/>
-        <rect x="7" y="3" width="1" height="10" fill="#1A1A1A"/>
-        <rect x="8" y="2" width="1" height="12" fill="#1A1A1A"/>
-        <rect x="11" y="5" width="1" height="6" fill="#2E2E2E"/>
-        <rect x="13" y="4" width="1" height="8" fill="#2E2E2E"/>
-        <rect x="15" y="3" width="1" height="10" fill="#B0A898"/>
+        <rect x="6" y="4" width="1" height="8" fill="#1A1A1A"/><rect x="7" y="3" width="1" height="10" fill="#1A1A1A"/><rect x="8" y="2" width="1" height="12" fill="#1A1A1A"/>
+        <rect x="11" y="5" width="1" height="6" fill="#2E2E2E"/><rect x="13" y="4" width="1" height="8" fill="#2E2E2E"/><rect x="15" y="3" width="1" height="10" fill="#B0A898"/>
       </svg>
       <input type="range" id="volume-bar" min="0" max="1" value="0.8" step="0.01">
     </div>
-
     <div id="mode-row">
       <button class="mode-btn" id="btn-shuffle">SHUF</button>
       <button class="mode-btn" id="btn-repeat">REPT</button>
     </div>
   </div>
 
-  <!-- DSP PANEL: SURROUND + UPSCALER -->
+  <!-- DSP PANEL -->
+
   <div id="dsp-panel">
     <div id="dsp-header-row">
       <span id="dsp-label">DSP ENGINE</span>
       <span id="dsp-status">BYPASSED</span>
     </div>
-
-    <!-- Surround Sound row -->
     <div class="dsp-row">
       <button class="dsp-toggle" id="btn-surround">SURND</button>
       <div class="dsp-slider-wrap">
@@ -480,8 +371,6 @@
       </div>
       <div class="dsp-indicator" id="surround-ind"></div>
     </div>
-
-    <!-- Upscaler row -->
     <div class="dsp-row">
       <button class="dsp-toggle" id="btn-upscale">UPSCL</button>
       <div class="dsp-slider-wrap">
@@ -492,7 +381,8 @@
     </div>
   </div>
 
-  <!-- PANEL 5: PLAYLIST -->
+  <!-- PLAYLIST — flex:1, scrolls internally -->
+
   <div id="playlist-panel">
     <div id="playlist-header">
       <span id="queue-label">QUEUE</span>
@@ -510,630 +400,297 @@
 <audio id="audio-el" preload="metadata"></audio>
 
 <script>
-// ─────────────────────────────────────────────
 // STATE
-// ─────────────────────────────────────────────
-let playlist = [];
-let currentIndex = -1;
-let isPlaying = false;
-let shuffle = false;
-let repeat = false;
-let isSeeking = false;
+let playlist=[], currentIndex=-1, isPlaying=false, shuffle=false, repeat=false, isSeeking=false;
+let audioCtx=null, analyser=null, gainNode=null, sourceNode=null;
+let surroundActive=false, surroundWidth=0.6;
+let splitterNode=null, mergerNode=null, sideDelayL=null, sideDelayR=null;
+let midGain=null, sideGainL=null, sideGainR=null, surroundGain=null;
+let upscaleActive=false, upscaleAmount=0.5;
+let waveshaperNode=null, highShelfNode=null, presenceNode=null;
+let dryGain=null, wetGain=null, upscaleInputGain=null;
 
-// Audio nodes
-let audioCtx = null;
-let analyser = null;
-let gainNode = null;
-let sourceNode = null;
+const audio=document.getElementById('audio-el');
+const canvas=document.getElementById('visualizer');
+const ctx2d=canvas.getContext('2d');
 
-// Surround nodes
-let surroundActive = false;
-let surroundWidth = 0.6; // 0-1
-// Mid/side splitter nodes
-let splitterNode = null;
-let mergerNode = null;
-let sideDelayL = null;
-let sideDelayR = null;
-let midGain = null;
-let sideGainL = null;
-let sideGainR = null;
-let surroundGain = null;
-
-// Upscaler nodes
-let upscaleActive = false;
-let upscaleAmount = 0.5; // 0-1
-let waveshaperNode = null;
-let highShelfNode = null;
-let presenceNode = null;
-let upscaleMix = null; // dry/wet
-let dryGain = null;
-let wetGain = null;
-let upscaleInputGain = null;
-
-const audio = document.getElementById('audio-el');
-const canvas = document.getElementById('visualizer');
-const ctx2d = canvas.getContext('2d');
-
-// ─────────────────────────────────────────────
 // INDEXEDDB
-// ─────────────────────────────────────────────
 let db;
-const DB_NAME = 'pixelplay_db';
-const STORE = 'tracks';
-
-function openDB() {
-  return new Promise((res, rej) => {
-    const req = indexedDB.open(DB_NAME, 1);
-    req.onupgradeneeded = e => {
-      const d = e.target.result;
-      if (!d.objectStoreNames.contains(STORE))
-        d.createObjectStore(STORE, { autoIncrement: true });
-    };
-    req.onsuccess = e => { db = e.target.result; res(db); };
-    req.onerror = e => rej(e);
+function openDB(){
+  return new Promise((res,rej)=>{
+    const req=indexedDB.open('pixelplay_db',1);
+    req.onupgradeneeded=e=>{if(!e.target.result.objectStoreNames.contains('tracks'))e.target.result.createObjectStore('tracks',{autoIncrement:true});};
+    req.onsuccess=e=>{db=e.target.result;res(db);};
+    req.onerror=e=>rej(e);
   });
 }
-function dbPut(track) {
-  return new Promise((res, rej) => {
-    const tx = db.transaction(STORE, 'readwrite');
-    const req = tx.objectStore(STORE).add(track);
-    req.onsuccess = e => res(e.target.result);
-    req.onerror = e => rej(e);
-  });
-}
-function dbGetAll() {
-  return new Promise((res, rej) => {
-    const tx = db.transaction(STORE, 'readonly');
-    const items = [];
-    const req = tx.objectStore(STORE).openCursor();
-    req.onsuccess = e => {
-      const c = e.target.result;
-      if (c) { items.push({ id: c.key, ...c.value }); c.continue(); }
-      else res(items);
-    };
-    req.onerror = e => rej(e);
+function dbPut(t){return new Promise((res,rej)=>{const r=db.transaction('tracks','readwrite').objectStore('tracks').add(t);r.onsuccess=e=>res(e.target.result);r.onerror=e=>rej(e);});}
+function dbGetAll(){
+  return new Promise((res,rej)=>{
+    const items=[];
+    const r=db.transaction('tracks','readonly').objectStore('tracks').openCursor();
+    r.onsuccess=e=>{const c=e.target.result;if(c){items.push({id:c.key,...c.value});c.continue();}else res(items);};
+    r.onerror=e=>rej(e);
   });
 }
 
-// ─────────────────────────────────────────────
 // AUDIO ENGINE INIT
-// ─────────────────────────────────────────────
-function initAudioCtx() {
-  if (audioCtx) return;
-  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
-  analyser = audioCtx.createAnalyser();
-  analyser.fftSize = 128;
-
-  gainNode = audioCtx.createGain();
-  gainNode.gain.value = parseFloat(document.getElementById('volume-bar').value);
-
-  sourceNode = audioCtx.createMediaElementSource(audio);
-
-  // Build DSP chain: source → upscaler → surround → analyser → gain → destination
-  // Upscaler chain (parallel dry/wet)
-  upscaleInputGain = audioCtx.createGain();
-  upscaleInputGain.gain.value = 1;
-
-  dryGain = audioCtx.createGain();
-  dryGain.gain.value = 1;
-
-  wetGain = audioCtx.createGain();
-  wetGain.gain.value = 0; // off by default
-
-  // Waveshaper for harmonic excitation (soft saturation)
-  waveshaperNode = audioCtx.createWaveShaper();
-  waveshaperNode.curve = makeDistortionCurve(upscaleAmount);
-  waveshaperNode.oversample = '4x';
-
-  // High shelf boost (air band ~8kHz)
-  highShelfNode = audioCtx.createBiquadFilter();
-  highShelfNode.type = 'highshelf';
-  highShelfNode.frequency.value = 8000;
-  highShelfNode.gain.value = 0;
-
-  // Presence mid boost ~3kHz
-  presenceNode = audioCtx.createBiquadFilter();
-  presenceNode.type = 'peaking';
-  presenceNode.frequency.value = 3000;
-  presenceNode.Q.value = 0.8;
-  presenceNode.gain.value = 0;
-
-  // Upscaler wet path: waveshaper → highShelf → presence → wetGain
-  upscaleInputGain.connect(waveshaperNode);
-  waveshaperNode.connect(highShelfNode);
-  highShelfNode.connect(presenceNode);
-  presenceNode.connect(wetGain);
-
-  // Dry path
+function initAudioCtx(){
+  if(audioCtx)return;
+  audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+  analyser=audioCtx.createAnalyser();analyser.fftSize=128;
+  gainNode=audioCtx.createGain();gainNode.gain.value=parseFloat(document.getElementById('volume-bar').value);
+  sourceNode=audioCtx.createMediaElementSource(audio);
+  upscaleInputGain=audioCtx.createGain();upscaleInputGain.gain.value=1;
+  dryGain=audioCtx.createGain();dryGain.gain.value=1;
+  wetGain=audioCtx.createGain();wetGain.gain.value=0;
+  waveshaperNode=audioCtx.createWaveShaper();waveshaperNode.curve=makeDistortionCurve(upscaleAmount);waveshaperNode.oversample='4x';
+  highShelfNode=audioCtx.createBiquadFilter();highShelfNode.type='highshelf';highShelfNode.frequency.value=8000;highShelfNode.gain.value=0;
+  presenceNode=audioCtx.createBiquadFilter();presenceNode.type='peaking';presenceNode.frequency.value=3000;presenceNode.Q.value=0.8;presenceNode.gain.value=0;
+  upscaleInputGain.connect(waveshaperNode);waveshaperNode.connect(highShelfNode);highShelfNode.connect(presenceNode);presenceNode.connect(wetGain);
   upscaleInputGain.connect(dryGain);
-
-  // Surround chain (stereo widener using mid-side + Haas delay)
-  splitterNode = audioCtx.createChannelSplitter(2);
-  mergerNode = audioCtx.createChannelMerger(2);
-
-  midGain = audioCtx.createGain();
-  midGain.gain.value = 1;
-
-  sideGainL = audioCtx.createGain();
-  sideGainL.gain.value = 0; // off by default
-
-  sideGainR = audioCtx.createGain();
-  sideGainR.gain.value = 0;
-
-  // Haas effect: slight delay on side channels creates width perception
-  sideDelayL = audioCtx.createDelay(0.04);
-  sideDelayL.delayTime.value = 0.008; // ~8ms
-
-  sideDelayR = audioCtx.createDelay(0.04);
-  sideDelayR.delayTime.value = 0.012; // ~12ms (asymmetric = wider)
-
-  surroundGain = audioCtx.createGain();
-  surroundGain.gain.value = 1;
-
-  // Connect surround: splitter → delay → sideGain → merger
-  // Mid path: both channels to mid gain, recombined equally
-  // Side path: L gets inverted-mix of R (Haas widening)
-
-  // Full chain: source → upscaleInput → [dry+wet merged] → splitter
-  //             splitter L → midGain → mergerL
-  //             splitter L → sideDelayL → sideGainL → mergerL  (adds width)
-  //             splitter R → midGain → mergerR
-  //             splitter R → sideDelayR → sideGainR → mergerR
-  //             merger → surroundGain → analyser → gainNode → destination
-
-  const preSurround = audioCtx.createGain();
-  preSurround.gain.value = 1;
-
-  dryGain.connect(preSurround);
-  wetGain.connect(preSurround);
-
-  preSurround.connect(splitterNode);
-
-  // L channel path
-  splitterNode.connect(midGain, 0);
-  splitterNode.connect(sideDelayL, 0);
-  sideDelayL.connect(sideGainL);
-  midGain.connect(mergerNode, 0, 0);
-  sideGainL.connect(mergerNode, 0, 0);
-
-  // R channel path
-  splitterNode.connect(midGain, 1);
-  splitterNode.connect(sideDelayR, 1);
-  sideDelayR.connect(sideGainR);
-  midGain.connect(mergerNode, 0, 1);
-  sideGainR.connect(mergerNode, 0, 1);
-
-  mergerNode.connect(surroundGain);
-  surroundGain.connect(analyser);
-  analyser.connect(gainNode);
-  gainNode.connect(audioCtx.destination);
-
-  // Connect source
+  splitterNode=audioCtx.createChannelSplitter(2);mergerNode=audioCtx.createChannelMerger(2);
+  midGain=audioCtx.createGain();midGain.gain.value=1;
+  sideGainL=audioCtx.createGain();sideGainL.gain.value=0;
+  sideGainR=audioCtx.createGain();sideGainR.gain.value=0;
+  sideDelayL=audioCtx.createDelay(0.04);sideDelayL.delayTime.value=0.008;
+  sideDelayR=audioCtx.createDelay(0.04);sideDelayR.delayTime.value=0.012;
+  surroundGain=audioCtx.createGain();surroundGain.gain.value=1;
+  const pre=audioCtx.createGain();pre.gain.value=1;
+  dryGain.connect(pre);wetGain.connect(pre);
+  pre.connect(splitterNode);
+  splitterNode.connect(midGain,0);splitterNode.connect(sideDelayL,0);sideDelayL.connect(sideGainL);
+  midGain.connect(mergerNode,0,0);sideGainL.connect(mergerNode,0,0);
+  splitterNode.connect(midGain,1);splitterNode.connect(sideDelayR,1);sideDelayR.connect(sideGainR);
+  midGain.connect(mergerNode,0,1);sideGainR.connect(mergerNode,0,1);
+  mergerNode.connect(surroundGain);surroundGain.connect(analyser);analyser.connect(gainNode);gainNode.connect(audioCtx.destination);
   sourceNode.connect(upscaleInputGain);
 }
+function resumeCtx(){if(audioCtx&&audioCtx.state==='suspended')audioCtx.resume();}
 
-function resumeCtx() {
-  if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
-}
-
-// ─────────────────────────────────────────────
-// SURROUND SOUND ENGINE
-// ─────────────────────────────────────────────
-// Uses Mid-Side processing + Haas effect:
-// - Splits stereo into Mid (L+R) and Side (L-R) components
-// - Delays side channel slightly (Haas effect: 8-20ms = perceived width)
-// - Boosts side gain to widen stereo image beyond speakers
-// - Result: headphones sound like a room with speaker spread
-
-function applySurround() {
-  if (!surroundGain) return;
-  if (surroundActive) {
-    // Width 0-1 → side gain 0-0.8 (beyond 0.8 causes phasing artifacts)
-    const sideAmt = surroundWidth * 0.75;
-    sideGainL.gain.setTargetAtTime(sideAmt, audioCtx.currentTime, 0.05);
-    sideGainR.gain.setTargetAtTime(sideAmt * 0.85, audioCtx.currentTime, 0.05);
-    // Slight mid reduction to compensate for added energy
-    midGain.gain.setTargetAtTime(1.0 - (surroundWidth * 0.1), audioCtx.currentTime, 0.05);
-    // Haas delay scales with width (more width = more delay = wider stage)
-    sideDelayL.delayTime.setTargetAtTime(0.005 + surroundWidth * 0.018, audioCtx.currentTime, 0.05);
-    sideDelayR.delayTime.setTargetAtTime(0.008 + surroundWidth * 0.022, audioCtx.currentTime, 0.05);
+// DSP SURROUND
+function applySurround(){
+  if(!surroundGain)return;
+  if(surroundActive){
+    const s=surroundWidth*0.75;
+    sideGainL.gain.setTargetAtTime(s,audioCtx.currentTime,0.05);
+    sideGainR.gain.setTargetAtTime(s*0.85,audioCtx.currentTime,0.05);
+    midGain.gain.setTargetAtTime(1-surroundWidth*0.1,audioCtx.currentTime,0.05);
+    sideDelayL.delayTime.setTargetAtTime(0.005+surroundWidth*0.018,audioCtx.currentTime,0.05);
+    sideDelayR.delayTime.setTargetAtTime(0.008+surroundWidth*0.022,audioCtx.currentTime,0.05);
   } else {
-    sideGainL.gain.setTargetAtTime(0, audioCtx.currentTime, 0.05);
-    sideGainR.gain.setTargetAtTime(0, audioCtx.currentTime, 0.05);
-    midGain.gain.setTargetAtTime(1, audioCtx.currentTime, 0.05);
+    sideGainL.gain.setTargetAtTime(0,audioCtx.currentTime,0.05);
+    sideGainR.gain.setTargetAtTime(0,audioCtx.currentTime,0.05);
+    midGain.gain.setTargetAtTime(1,audioCtx.currentTime,0.05);
   }
 }
 
-// ─────────────────────────────────────────────
-// AUDIO UPSCALER ENGINE
-// ─────────────────────────────────────────────
-// Simulates high-res audio from compressed sources:
-// - Waveshaper: adds harmonic overtones (2nd/3rd order harmonics)
-//   that were removed during MP3/AAC compression
-// - High-shelf boost: restores "air" frequencies (>8kHz) that
-//   lossy codecs attenuate
-// - Presence peak: adds clarity/definition around 3kHz (vocal range)
-// - Parallel processing: dry signal mixed with treated signal
-//   so fundamental tone is preserved
-
-function makeDistortionCurve(amount) {
-  // Soft saturation curve — adds warm 2nd harmonic character
-  // Not hard clipping — smooth tanh-style saturation
-  const n = 256;
-  const curve = new Float32Array(n);
-  const drive = amount * 180 + 10; // 10-190 drive range
-  for (let i = 0; i < n; i++) {
-    const x = (i * 2) / n - 1;
-    // Soft saturation: tanh approximation
-    curve[i] = (Math.PI + drive) * x / (Math.PI + drive * Math.abs(x));
-  }
+// DSP UPSCALER
+function makeDistortionCurve(amount){
+  const n=256,curve=new Float32Array(n),drive=amount*180+10;
+  for(let i=0;i<n;i++){const x=(i*2)/n-1;curve[i]=(Math.PI+drive)*x/(Math.PI+drive*Math.abs(x));}
   return curve;
 }
-
-function applyUpscale() {
-  if (!waveshaperNode) return;
-  if (upscaleActive) {
-    // Wet mix scales with amount (0-1 → 0-0.55 wet mix)
-    const wetMix = upscaleAmount * 0.55;
-    const dryMix = 1.0 - wetMix * 0.3; // slight dry reduction to prevent clipping
-
-    wetGain.gain.setTargetAtTime(wetMix, audioCtx.currentTime, 0.05);
-    dryGain.gain.setTargetAtTime(dryMix, audioCtx.currentTime, 0.05);
-
-    // Update waveshaper curve with current drive
-    waveshaperNode.curve = makeDistortionCurve(upscaleAmount);
-
-    // Air shelf: 0 to +6dB based on amount
-    highShelfNode.gain.setTargetAtTime(upscaleAmount * 6, audioCtx.currentTime, 0.05);
-
-    // Presence boost: 0 to +3dB
-    presenceNode.gain.setTargetAtTime(upscaleAmount * 3, audioCtx.currentTime, 0.05);
+function applyUpscale(){
+  if(!waveshaperNode)return;
+  if(upscaleActive){
+    const w=upscaleAmount*0.55;
+    wetGain.gain.setTargetAtTime(w,audioCtx.currentTime,0.05);
+    dryGain.gain.setTargetAtTime(1-w*0.3,audioCtx.currentTime,0.05);
+    waveshaperNode.curve=makeDistortionCurve(upscaleAmount);
+    highShelfNode.gain.setTargetAtTime(upscaleAmount*6,audioCtx.currentTime,0.05);
+    presenceNode.gain.setTargetAtTime(upscaleAmount*3,audioCtx.currentTime,0.05);
   } else {
-    wetGain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.05);
-    dryGain.gain.setTargetAtTime(1, audioCtx.currentTime, 0.05);
-    highShelfNode.gain.setTargetAtTime(0, audioCtx.currentTime, 0.05);
-    presenceNode.gain.setTargetAtTime(0, audioCtx.currentTime, 0.05);
+    wetGain.gain.setTargetAtTime(0,audioCtx.currentTime,0.05);
+    dryGain.gain.setTargetAtTime(1,audioCtx.currentTime,0.05);
+    highShelfNode.gain.setTargetAtTime(0,audioCtx.currentTime,0.05);
+    presenceNode.gain.setTargetAtTime(0,audioCtx.currentTime,0.05);
   }
 }
-
-function updateDspStatus() {
-  const el = document.getElementById('dsp-status');
-  const both = surroundActive && upscaleActive;
-  const one = surroundActive || upscaleActive;
-  el.textContent = both ? 'SURND+UPSCL ACTIVE' : surroundActive ? 'SURROUND ACTIVE' : upscaleActive ? 'UPSCALER ACTIVE' : 'BYPASSED';
-  el.style.color = one ? 'var(--sage)' : 'var(--warm-gray)';
+function updateDspStatus(){
+  const el=document.getElementById('dsp-status');
+  el.textContent=(surroundActive&&upscaleActive)?'SURND+UPSCL ON':surroundActive?'SURROUND ON':upscaleActive?'UPSCALER ON':'BYPASSED';
+  el.style.color=(surroundActive||upscaleActive)?'var(--sage)':'var(--warm-gray)';
 }
 
-// ─────────────────────────────────────────────
 // VISUALIZER
-// ─────────────────────────────────────────────
-function resizeCanvas() {
-  const panel = document.getElementById('visualizer-panel');
-  canvas.width = panel.offsetWidth;
-  canvas.height = panel.offsetHeight;
-}
-
-function drawViz() {
+function resizeCanvas(){const p=document.getElementById('visualizer-panel');canvas.width=p.offsetWidth;canvas.height=p.offsetHeight;}
+function drawViz(){
   requestAnimationFrame(drawViz);
-  const W = canvas.width, H = canvas.height;
-  ctx2d.fillStyle = '#EDE8DC';
-  ctx2d.fillRect(0, 0, W, H);
-  const barW = 4, gap = 2, step = barW + gap;
-  const numBars = Math.floor(W / step);
-  if (analyser && isPlaying) {
-    const data = new Uint8Array(analyser.frequencyBinCount);
-    analyser.getByteFrequencyData(data);
-    const binStep = Math.floor(data.length / numBars);
-    for (let i = 0; i < numBars; i++) {
-      const val = data[i * binStep] || 0;
-      const barH = Math.max(2, Math.floor((val / 255) * (H - 16)));
-      ctx2d.fillStyle = (i % 2 === 0) ? '#2E2E2E' : '#D4A5A0';
-      ctx2d.fillRect(i * step, H - barH, barW, barH);
+  const W=canvas.width,H=canvas.height;
+  ctx2d.fillStyle='#EDE8DC';ctx2d.fillRect(0,0,W,H);
+  const step=6,barW=4,numBars=Math.floor(W/step);
+  if(analyser&&isPlaying){
+    const data=new Uint8Array(analyser.frequencyBinCount);analyser.getByteFrequencyData(data);
+    const binStep=Math.floor(data.length/numBars);
+    for(let i=0;i<numBars;i++){
+      const val=data[i*binStep]||0,barH=Math.max(2,Math.floor((val/255)*(H-10)));
+      ctx2d.fillStyle=(i%2===0)?'#2E2E2E':'#D4A5A0';
+      ctx2d.fillRect(i*step,H-barH,barW,barH);
     }
   } else {
-    for (let i = 0; i < numBars; i++) {
-      ctx2d.fillStyle = (i % 2 === 0) ? '#2E2E2E' : '#D4A5A0';
-      ctx2d.fillRect(i * step, H - 4, barW, 2);
-    }
+    for(let i=0;i<numBars;i++){ctx2d.fillStyle=(i%2===0)?'#2E2E2E':'#D4A5A0';ctx2d.fillRect(i*step,H-3,barW,2);}
   }
 }
 
-// ─────────────────────────────────────────────
 // PLAYBACK
-// ─────────────────────────────────────────────
-function loadTrack(index, autoplay) {
-  if (index < 0 || index >= playlist.length) return;
-  currentIndex = index;
-  const track = playlist[index];
-  const artFrame = document.getElementById('art-frame');
-  const defaultArt = document.getElementById('default-art');
-  if (track.coverArtBase64) {
-    let img = artFrame.querySelector('img');
-    if (!img) { img = document.createElement('img'); artFrame.appendChild(img); }
-    img.src = track.coverArtBase64;
-    img.style.display = 'block';
-    if (defaultArt) defaultArt.style.display = 'none';
+function loadTrack(index,autoplay){
+  if(index<0||index>=playlist.length)return;
+  currentIndex=index;
+  const track=playlist[index];
+  const artFrame=document.getElementById('art-frame');
+  const defaultArt=document.getElementById('default-art');
+  if(track.coverArtBase64){
+    let img=artFrame.querySelector('img');
+    if(!img){img=document.createElement('img');artFrame.appendChild(img);}
+    img.src=track.coverArtBase64;img.style.display='block';
+    if(defaultArt)defaultArt.style.display='none';
   } else {
-    const img = artFrame.querySelector('img');
-    if (img) img.style.display = 'none';
-    if (defaultArt) defaultArt.style.display = 'block';
+    const img=artFrame.querySelector('img');if(img)img.style.display='none';
+    if(defaultArt)defaultArt.style.display='block';
   }
-  document.getElementById('track-title').textContent = track.title || 'UNKNOWN TITLE';
-  document.getElementById('track-artist').textContent = track.artist || 'Unknown Artist';
-  document.getElementById('time-current').textContent = '0:00';
-  document.getElementById('time-total').textContent = formatTime(track.duration || 0);
-  document.getElementById('seek-bar').value = 0;
-  const url = URL.createObjectURL(track.audioBlob);
-  audio.src = url;
-  audio.load();
-  if (autoplay) {
-    audio.play().then(() => { isPlaying = true; updatePlayBtn(); resumeCtx(); })
-      .catch(err => console.warn('Play failed:', err));
-  }
+  document.getElementById('track-title').textContent=track.title||'UNKNOWN TITLE';
+  document.getElementById('track-artist').textContent=track.artist||'Unknown Artist';
+  document.getElementById('time-current').textContent='0:00';
+  document.getElementById('time-total').textContent=formatTime(track.duration||0);
+  document.getElementById('seek-bar').value=0;
+  audio.src=URL.createObjectURL(track.audioBlob);audio.load();
+  if(autoplay)audio.play().then(()=>{isPlaying=true;updatePlayBtn();resumeCtx();}).catch(e=>console.warn(e));
   renderPlaylist();
 }
-
-function togglePlay() {
-  initAudioCtx(); resumeCtx();
-  if (playlist.length === 0) return;
-  if (currentIndex < 0) { loadTrack(0, true); return; }
-  if (isPlaying) { audio.pause(); isPlaying = false; }
-  else { audio.play().catch(e => console.warn(e)); isPlaying = true; resumeCtx(); }
+function togglePlay(){
+  initAudioCtx();resumeCtx();
+  if(!playlist.length)return;
+  if(currentIndex<0){loadTrack(0,true);return;}
+  if(isPlaying){audio.pause();isPlaying=false;}
+  else{audio.play().catch(e=>console.warn(e));isPlaying=true;resumeCtx();}
   updatePlayBtn();
 }
-
-function updatePlayBtn() {
-  document.getElementById('play-icon').style.display = isPlaying ? 'none' : 'block';
-  document.getElementById('pause-icon').style.display = isPlaying ? 'block' : 'none';
+function updatePlayBtn(){
+  document.getElementById('play-icon').style.display=isPlaying?'none':'block';
+  document.getElementById('pause-icon').style.display=isPlaying?'block':'none';
 }
-
-function playNext() {
-  if (playlist.length === 0) return;
+function playNext(){
+  if(!playlist.length)return;
   let next;
-  if (shuffle) { do { next = Math.floor(Math.random() * playlist.length); } while (playlist.length > 1 && next === currentIndex); }
-  else { next = (currentIndex + 1) % playlist.length; }
-  loadTrack(next, true);
+  if(shuffle){do{next=Math.floor(Math.random()*playlist.length);}while(playlist.length>1&&next===currentIndex);}
+  else{next=(currentIndex+1)%playlist.length;}
+  loadTrack(next,true);
+}
+function playPrev(){
+  if(!playlist.length)return;
+  if(audio.currentTime>3){audio.currentTime=0;return;}
+  loadTrack((currentIndex-1+playlist.length)%playlist.length,true);
 }
 
-function playPrev() {
-  if (playlist.length === 0) return;
-  if (audio.currentTime > 3) { audio.currentTime = 0; return; }
-  loadTrack((currentIndex - 1 + playlist.length) % playlist.length, true);
-}
-
-// ─────────────────────────────────────────────
 // SEEK & VOLUME
-// ─────────────────────────────────────────────
-const seekBar = document.getElementById('seek-bar');
-seekBar.addEventListener('mousedown', () => { isSeeking = true; });
-seekBar.addEventListener('touchstart', () => { isSeeking = true; }, { passive: true });
-seekBar.addEventListener('input', () => {
-  if (!isNaN(audio.duration)) audio.currentTime = (seekBar.value / 100) * audio.duration;
+const seekBar=document.getElementById('seek-bar');
+seekBar.addEventListener('mousedown',()=>isSeeking=true);
+seekBar.addEventListener('touchstart',()=>isSeeking=true,{passive:true});
+seekBar.addEventListener('input',()=>{if(!isNaN(audio.duration))audio.currentTime=(seekBar.value/100)*audio.duration;});
+seekBar.addEventListener('mouseup',()=>isSeeking=false);
+seekBar.addEventListener('touchend',()=>isSeeking=false);
+audio.addEventListener('timeupdate',()=>{
+  if(isSeeking)return;
+  if(!isNaN(audio.duration)&&audio.duration>0)seekBar.value=(audio.currentTime/audio.duration)*100;
+  document.getElementById('time-current').textContent=formatTime(audio.currentTime);
 });
-seekBar.addEventListener('mouseup', () => { isSeeking = false; });
-seekBar.addEventListener('touchend', () => { isSeeking = false; });
-
-audio.addEventListener('timeupdate', () => {
-  if (isSeeking) return;
-  if (!isNaN(audio.duration) && audio.duration > 0)
-    seekBar.value = (audio.currentTime / audio.duration) * 100;
-  document.getElementById('time-current').textContent = formatTime(audio.currentTime);
+audio.addEventListener('loadedmetadata',()=>{
+  document.getElementById('time-total').textContent=formatTime(audio.duration);
+  if(currentIndex>=0)playlist[currentIndex].duration=audio.duration;
 });
-audio.addEventListener('loadedmetadata', () => {
-  document.getElementById('time-total').textContent = formatTime(audio.duration);
-  if (currentIndex >= 0) playlist[currentIndex].duration = audio.duration;
-});
-audio.addEventListener('ended', () => {
-  isPlaying = false; updatePlayBtn();
-  if (repeat) { audio.currentTime = 0; audio.play().then(() => { isPlaying = true; updatePlayBtn(); }); }
+audio.addEventListener('ended',()=>{
+  isPlaying=false;updatePlayBtn();
+  if(repeat){audio.currentTime=0;audio.play().then(()=>{isPlaying=true;updatePlayBtn();});}
   else playNext();
 });
-audio.addEventListener('play', () => { isPlaying = true; updatePlayBtn(); });
-audio.addEventListener('pause', () => { isPlaying = false; updatePlayBtn(); });
+audio.addEventListener('play',()=>{isPlaying=true;updatePlayBtn();});
+audio.addEventListener('pause',()=>{isPlaying=false;updatePlayBtn();});
+document.getElementById('volume-bar').addEventListener('input',function(){if(gainNode)gainNode.gain.value=parseFloat(this.value);});
 
-document.getElementById('volume-bar').addEventListener('input', function() {
-  if (gainNode) gainNode.gain.value = parseFloat(this.value);
+// BUTTONS
+document.getElementById('btn-play').addEventListener('click',()=>{initAudioCtx();togglePlay();});
+document.getElementById('btn-prev').addEventListener('click',playPrev);
+document.getElementById('btn-next').addEventListener('click',playNext);
+document.getElementById('btn-shuffle').addEventListener('click',function(){shuffle=!shuffle;this.classList.toggle('active',shuffle);});
+document.getElementById('btn-repeat').addEventListener('click',function(){repeat=!repeat;this.classList.toggle('active',repeat);});
+document.getElementById('btn-surround').addEventListener('click',function(){
+  initAudioCtx();surroundActive=!surroundActive;this.classList.toggle('active',surroundActive);
+  document.getElementById('surround-ind').classList.toggle('on',surroundActive);
+  applySurround();updateDspStatus();showToast(surroundActive?'SURROUND ON':'SURROUND OFF');
 });
+document.getElementById('surround-slider').addEventListener('input',function(){
+  surroundWidth=this.value/100;document.getElementById('surround-val').textContent=this.value+'%';
+  if(surroundActive&&audioCtx)applySurround();
+});
+document.getElementById('btn-upscale').addEventListener('click',function(){
+  initAudioCtx();upscaleActive=!upscaleActive;this.classList.toggle('active',upscaleActive);
+  document.getElementById('upscale-ind').classList.toggle('on',upscaleActive);
+  applyUpscale();updateDspStatus();showToast(upscaleActive?'UPSCALER ON':'UPSCALER OFF');
+});
+document.getElementById('upscale-slider').addEventListener('input',function(){
+  upscaleAmount=this.value/100;document.getElementById('upscale-val').textContent=this.value+'%';
+  if(upscaleActive&&audioCtx)applyUpscale();
+});
+document.getElementById('btn-add').addEventListener('click',e=>{e.preventDefault();const fi=document.getElementById('file-input');fi.value='';fi.click();});
+document.getElementById('file-input').addEventListener('change',function(e){Array.from(e.target.files).forEach(f=>processFile(f));this.value='';});
 
-// ─────────────────────────────────────────────
-// TRANSPORT CONTROLS
-// ─────────────────────────────────────────────
-document.getElementById('btn-play').addEventListener('click', () => { initAudioCtx(); togglePlay(); });
-document.getElementById('btn-prev').addEventListener('click', playPrev);
-document.getElementById('btn-next').addEventListener('click', playNext);
-document.getElementById('btn-shuffle').addEventListener('click', function() {
-  shuffle = !shuffle; this.classList.toggle('active', shuffle);
-});
-document.getElementById('btn-repeat').addEventListener('click', function() {
-  repeat = !repeat; this.classList.toggle('active', repeat);
-});
-
-// ─────────────────────────────────────────────
-// DSP CONTROLS
-// ─────────────────────────────────────────────
-document.getElementById('btn-surround').addEventListener('click', function() {
-  initAudioCtx();
-  surroundActive = !surroundActive;
-  this.classList.toggle('active', surroundActive);
-  document.getElementById('surround-ind').classList.toggle('on', surroundActive);
-  applySurround();
-  updateDspStatus();
-  showToast(surroundActive ? 'SURROUND SOUND ON' : 'SURROUND SOUND OFF');
-});
-
-document.getElementById('surround-slider').addEventListener('input', function() {
-  surroundWidth = this.value / 100;
-  document.getElementById('surround-val').textContent = this.value + '%';
-  if (surroundActive && audioCtx) applySurround();
-});
-
-document.getElementById('btn-upscale').addEventListener('click', function() {
-  initAudioCtx();
-  upscaleActive = !upscaleActive;
-  this.classList.toggle('active', upscaleActive);
-  document.getElementById('upscale-ind').classList.toggle('on', upscaleActive);
-  applyUpscale();
-  updateDspStatus();
-  showToast(upscaleActive ? 'UPSCALER ON' : 'UPSCALER OFF');
-});
-
-document.getElementById('upscale-slider').addEventListener('input', function() {
-  upscaleAmount = this.value / 100;
-  document.getElementById('upscale-val').textContent = this.value + '%';
-  if (upscaleActive && audioCtx) applyUpscale();
-});
-
-// ─────────────────────────────────────────────
-// FILE UPLOAD
-// ─────────────────────────────────────────────
-document.getElementById('btn-add').addEventListener('click', (e) => {
-  e.preventDefault();
-  const fi = document.getElementById('file-input');
-  fi.value = '';
-  fi.click();
-});
-
-document.getElementById('file-input').addEventListener('change', function(e) {
-  Array.from(e.target.files).forEach(f => processFile(f));
-  this.value = '';
-});
-
-function processFile(file) {
-  jsmediatags.read(file, {
-    onSuccess: async (tag) => {
-      const tags = tag.tags;
-      const title = tags.title || file.name.replace(/\.[^/.]+$/, '');
-      const artist = tags.artist || 'Unknown Artist';
-      let coverArtBase64 = null;
-      if (tags.picture) {
-        const pic = tags.picture;
-        const bytes = new Uint8Array(pic.data);
-        let binary = '';
-        bytes.forEach(b => binary += String.fromCharCode(b));
-        coverArtBase64 = `data:${pic.format};base64,${btoa(binary)}`;
-      }
-      await saveTrack({ title, artist, coverArtBase64, audioBlob: file, duration: 0 });
+function processFile(file){
+  jsmediatags.read(file,{
+    onSuccess:async(tag)=>{
+      const t=tag.tags,title=t.title||file.name.replace(/\.[^/.]+$/,''),artist=t.artist||'Unknown Artist';
+      let coverArtBase64=null;
+      if(t.picture){const p=t.picture,bytes=new Uint8Array(p.data);let bin='';bytes.forEach(b=>bin+=String.fromCharCode(b));coverArtBase64=`data:${p.format};base64,${btoa(bin)}`;}
+      await saveTrack({title,artist,coverArtBase64,audioBlob:file,duration:0});
     },
-    onError: async () => {
-      const title = file.name.replace(/\.[^/.]+$/, '');
-      await saveTrack({ title, artist: 'Unknown Artist', coverArtBase64: null, audioBlob: file, duration: 0 });
-    }
+    onError:async()=>saveTrack({title:file.name.replace(/\.[^/.]+$/,''),artist:'Unknown Artist',coverArtBase64:null,audioBlob:file,duration:0})
   });
 }
-
-async function saveTrack(track) {
-  try {
-    const id = await dbPut(track);
-    const stored = { ...track, id };
-    const tmpAudio = new Audio();
-    const url = URL.createObjectURL(track.audioBlob);
-    tmpAudio.src = url;
-    tmpAudio.addEventListener('loadedmetadata', () => {
-      stored.duration = tmpAudio.duration;
-      URL.revokeObjectURL(url);
-    });
-    playlist.push(stored);
-    renderPlaylist();
-    showToast('SAVED: ' + track.title.substring(0, 18).toUpperCase());
-    if (playlist.length === 1) loadTrack(0, false);
-  } catch (err) {
-    console.error('Save error:', err);
-    showToast('ERROR SAVING TRACK');
-  }
+async function saveTrack(track){
+  try{
+    const id=await dbPut(track),stored={...track,id};
+    const tmp=new Audio(),url=URL.createObjectURL(track.audioBlob);tmp.src=url;
+    tmp.addEventListener('loadedmetadata',()=>{stored.duration=tmp.duration;URL.revokeObjectURL(url);});
+    playlist.push(stored);renderPlaylist();
+    showToast('SAVED: '+track.title.substring(0,18).toUpperCase());
+    if(playlist.length===1)loadTrack(0,false);
+  }catch(e){console.error(e);showToast('ERROR SAVING TRACK');}
 }
 
-// ─────────────────────────────────────────────
 // PLAYLIST RENDER
-// ─────────────────────────────────────────────
-function renderPlaylist() {
-  const list = document.getElementById('playlist-list');
-  if (playlist.length === 0) {
-    list.innerHTML = '<div id="empty-msg">NO TRACKS LOADED<br>TAP + ADD TO BEGIN</div>';
-    return;
-  }
-  list.innerHTML = '';
-  playlist.forEach((track, i) => {
-    const row = document.createElement('div');
-    row.className = 'track-row' + (i === currentIndex ? ' active' : '');
-    const thumb = document.createElement('div');
-    thumb.className = 'track-thumb';
-    if (track.coverArtBase64) {
-      const img = document.createElement('img');
-      img.src = track.coverArtBase64;
-      thumb.appendChild(img);
-    } else {
-      thumb.innerHTML = getSmallPlaceholderSVG();
-    }
-    const meta = document.createElement('div');
-    meta.className = 'track-meta';
-    const name = document.createElement('div');
-    name.className = 'track-name';
-    name.textContent = (track.title || 'UNKNOWN').toUpperCase();
-    const art = document.createElement('div');
-    art.className = 'track-artist-small';
-    art.textContent = track.artist || 'Unknown Artist';
-    meta.appendChild(name);
-    meta.appendChild(art);
-    const dur = document.createElement('div');
-    dur.className = 'track-dur';
-    dur.textContent = formatTime(track.duration || 0);
-    row.appendChild(thumb);
-    row.appendChild(meta);
-    row.appendChild(dur);
-    row.addEventListener('click', () => { initAudioCtx(); loadTrack(i, true); });
+function renderPlaylist(){
+  const list=document.getElementById('playlist-list');
+  if(!playlist.length){list.innerHTML='<div id="empty-msg">NO TRACKS LOADED<br>TAP + ADD TO BEGIN</div>';return;}
+  list.innerHTML='';
+  playlist.forEach((track,i)=>{
+    const row=document.createElement('div');row.className='track-row'+(i===currentIndex?' active':'');
+    const thumb=document.createElement('div');thumb.className='track-thumb';
+    if(track.coverArtBase64){const img=document.createElement('img');img.src=track.coverArtBase64;thumb.appendChild(img);}
+    else thumb.innerHTML='<svg viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg" image-rendering="pixelated"><rect width="36" height="36" fill="#EDE8DC"/><rect x="4" y="4" width="28" height="28" fill="#1A1A1A"/><rect x="10" y="8" width="16" height="16" fill="#D4A5A0"/><rect x="16" y="15" width="4" height="6" fill="#EDE8DC"/><rect x="14" y="17" width="8" height="2" fill="#EDE8DC"/></svg>';
+    const meta=document.createElement('div');meta.className='track-meta';
+    const name=document.createElement('div');name.className='track-name';name.textContent=(track.title||'UNKNOWN').toUpperCase();
+    const art=document.createElement('div');art.className='track-artist-small';art.textContent=track.artist||'Unknown Artist';
+    meta.appendChild(name);meta.appendChild(art);
+    const dur=document.createElement('div');dur.className='track-dur';dur.textContent=formatTime(track.duration||0);
+    row.appendChild(thumb);row.appendChild(meta);row.appendChild(dur);
+    row.addEventListener('click',()=>{initAudioCtx();loadTrack(i,true);});
     list.appendChild(row);
   });
 }
 
-function getSmallPlaceholderSVG() {
-  return `<svg viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg" image-rendering="pixelated">
-    <rect width="36" height="36" fill="#EDE8DC"/>
-    <rect x="6" y="2" width="24" height="2" fill="#2E2E2E"/>
-    <rect x="2" y="6" width="2" height="24" fill="#2E2E2E"/>
-    <rect x="6" y="32" width="24" height="2" fill="#2E2E2E"/>
-    <rect x="32" y="6" width="2" height="24" fill="#2E2E2E"/>
-    <rect x="4" y="4" width="28" height="28" fill="#1A1A1A"/>
-    <rect x="10" y="8" width="16" height="16" fill="#D4A5A0"/>
-    <rect x="16" y="15" width="4" height="6" fill="#EDE8DC"/>
-    <rect x="14" y="17" width="8" height="2" fill="#EDE8DC"/>
-    <rect x="8" y="28" width="20" height="2" fill="#2E2E2E"/>
-  </svg>`;
-}
-
-// ─────────────────────────────────────────────
-// UTILS
-// ─────────────────────────────────────────────
-function formatTime(secs) {
-  if (isNaN(secs) || secs === Infinity) return '0:00';
-  const m = Math.floor(secs / 60), s = Math.floor(secs % 60);
-  return `${m}:${s.toString().padStart(2, '0')}`;
-}
-
+function formatTime(s){if(isNaN(s)||s===Infinity)return'0:00';return`${Math.floor(s/60)}:${String(Math.floor(s%60)).padStart(2,'0')}`;}
 let toastTimer;
-function showToast(msg) {
-  const toast = document.getElementById('toast');
-  toast.textContent = msg;
-  toast.style.display = 'block';
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => { toast.style.display = 'none'; }, 2000);
-}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.style.display='block';clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.style.display='none',2000);}
 
-// ─────────────────────────────────────────────
-// INIT
-// ─────────────────────────────────────────────
-async function init() {
+async function init(){
   await openDB();
-  const stored = await dbGetAll();
-  stored.forEach(t => playlist.push(t));
-  renderPlaylist();
-  resizeCanvas();
-  drawViz();
-  if (playlist.length > 0) loadTrack(0, false);
+  (await dbGetAll()).forEach(t=>playlist.push(t));
+  renderPlaylist();resizeCanvas();drawViz();
+  if(playlist.length)loadTrack(0,false);
 }
-
-window.addEventListener('resize', resizeCanvas);
+window.addEventListener('resize',resizeCanvas);
 init();
 </script>
+
 </body>
 </html>
